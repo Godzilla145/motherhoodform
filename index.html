@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="fr" class="bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NLParto — Validation Clinique</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            arabic: ['Cairo', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; color: #0f172a; }
+    .font-arabic { font-family: 'Cairo', sans-serif; }
+    ::selection { background: #bbf7d0; color: #14532d; }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 antialiased text-slate-800">
+
+  <!-- ========================================================================= -->
+  <!-- 1. CHARGEMENT INITIAL                                                     -->
+  <!-- ========================================================================= -->
+  <div id="loading-view" class="flex min-h-screen items-center justify-center bg-slate-50">
+    <div class="flex flex-col items-center gap-3">
+      <i data-lucide="loader-2" class="size-6 animate-spin text-emerald-700"></i>
+      <span class="text-sm font-medium text-slate-500">Chargement de la session clinique...</span>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. ONBOARDING (Clair, Sobre, Professionnel)                               -->
+  <!-- ========================================================================= -->
+  <main id="onboarding-view" class="hidden min-h-screen bg-slate-50 px-4 py-8 sm:py-12">
+    <div class="mx-auto max-w-xl">
+      <!-- En-tête sobre -->
+      <div class="mb-6 flex items-center justify-center gap-2.5">
+        <span class="flex size-9 items-center justify-center rounded-lg bg-emerald-700 text-white shadow-xs">
+          <i data-lucide="stethoscope" class="size-5"></i>
+        </span>
+        <div>
+          <p class="text-lg font-bold tracking-tight text-slate-900 leading-none">NLParto</p>
+          <p class="text-[11px] font-semibold tracking-wider text-slate-500 uppercase mt-0.5">Validation clinique</p>
+        </div>
+      </div>
+
+      <!-- Carte d'accueil centrale -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-xs">
+        <div class="border-b border-slate-100 pb-5 mb-5">
+          <span class="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 border border-emerald-200">
+            <i data-lucide="shield" class="size-3.5"></i>
+            Santé maternelle & infantile
+          </span>
+          <h1 class="mt-2.5 text-xl font-bold tracking-tight text-slate-900">
+            Validation clinique des dialogues de santé
+          </h1>
+          <p class="mt-1.5 text-xs text-slate-600 leading-relaxed">
+            Évaluez la conformité médicale et la sécurité des réponses générées en Darja algérienne. Aucun mot de passe requis.
+          </p>
+        </div>
+
+        <form id="onboarding-form" class="space-y-5" onsubmit="event.preventDefault(); startSeries();">
+          <!-- 1. Identifiant -->
+          <div>
+            <label for="reviewer-name-input" class="block text-xs font-bold text-slate-900 uppercase tracking-wider">
+              1. Identifiant / nom du praticien
+            </label>
+            <p class="text-[11px] text-slate-500 mt-0.5">
+              Utilisez votre nom ou vos initiales.
+            </p>
+            <div class="relative mt-1.5">
+              <i data-lucide="user" class="absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-slate-400"></i>
+              <input
+                id="reviewer-name-input"
+                type="text"
+                placeholder="Ex. Dr. Amine Benali"
+                maxlength="80"
+                required
+                class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pr-4 pl-10 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100"
+              />
+            </div>
+          </div>
+
+          <!-- 2. Profil médical (Grille 2x3 claire) -->
+          <fieldset>
+            <legend class="block text-xs font-bold text-slate-900 uppercase tracking-wider">2. Profil médical</legend>
+            <p class="text-[11px] text-slate-500 mt-0.5">
+              Votre statut permet de pondérer les évaluations cliniques.
+            </p>
+            <div id="roles-grid" class="mt-2 grid gap-2 sm:grid-cols-2">
+              <!-- Injecté dynamiquement -->
+            </div>
+          </fieldset>
+
+          <!-- Directives cliniques bilingues sobres -->
+          <div class="rounded-xl border border-sky-200 bg-sky-50/50 p-3.5 text-xs leading-relaxed">
+            <div class="flex items-center gap-1.5 font-bold text-sky-900 mb-1.5">
+              <i data-lucide="file-text" class="size-4 text-sky-700"></i>
+              Directives cliniques / تعليمات التقييم
+            </div>
+            <p class="text-sky-950 font-medium text-[11px]">
+              <strong>Français :</strong> Validez si la réponse respecte la recommandation médicale. Tolérance zéro pour les prescriptions ou posologies de médicaments.
+            </p>
+            <p dir="rtl" class="font-arabic text-right text-xs text-sky-950 font-semibold mt-1.5 pt-1.5 border-t border-sky-200">
+              تأكد من صحة المعلومة بالدارجة الجزائرية وعدم تقديم أي جرعات أدوية. ارفض أي إجابة قد تشكل خطراً على صحة الأم أو الطفل.
+            </p>
+          </div>
+
+          <div id="onboarding-error" class="hidden text-xs font-semibold text-rose-700 p-2.5 bg-rose-50 border border-rose-200 rounded-lg"></div>
+
+          <!-- Bouton CTA Propre -->
+          <button
+            id="start-btn"
+            type="submit"
+            class="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-3 px-5 text-sm shadow-xs transition active:scale-[0.99] cursor-pointer"
+          >
+            <span>Commencer l’évaluation</span>
+            <span class="text-emerald-200 font-normal">· Série de 20</span>
+            <i data-lucide="arrow-right" class="size-4"></i>
+          </button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 3. ESPACE DE RÉVISION CLINIQUE (100% AXÉ SUR QUESTION & RÉPONSE)          -->
+  <!-- ========================================================================= -->
+  <main id="review-view" class="hidden min-h-screen bg-slate-50 text-slate-800">
+    <!-- Barre supérieure compacte et professionnelle -->
+    <header class="border-b border-slate-200 bg-white sticky top-0 z-30 shadow-xs">
+      <div class="mx-auto flex h-14 max-w-3xl items-center justify-between px-4 sm:px-6">
+        <!-- Logo & Titre -->
+        <div class="flex items-center gap-2">
+          <span class="flex size-7 items-center justify-center rounded-lg bg-emerald-700 text-white text-xs font-bold">
+            <i data-lucide="stethoscope" class="size-4"></i>
+          </span>
+          <span class="text-sm font-bold text-slate-900 tracking-tight">NLParto</span>
+        </div>
+
+        <!-- Section Praticien & Série -->
+        <div class="flex items-center gap-3">
+          <div class="text-right">
+            <span id="nav-reviewer-name" class="block text-xs font-bold text-slate-900 leading-none">Dr. Amine</span>
+            <span id="nav-reviewer-role" class="block text-[11px] text-slate-500 mt-0.5 leading-none">Médecin Généraliste</span>
+          </div>
+
+          <div class="h-6 w-px bg-slate-200"></div>
+
+          <!-- Compteur & Sortie -->
+          <div class="flex items-center gap-2">
+            <span id="question-counter" class="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md">
+              Question 1 / 20
+            </span>
+            <button
+              id="quit-btn"
+              type="button"
+              title="Quitter la série"
+              class="text-xs text-slate-500 hover:text-slate-800 border border-slate-200 hover:bg-slate-50 px-2 py-1 rounded-md transition cursor-pointer"
+            >
+              Quitter
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barre de progression ultra-fine -->
+      <div class="h-1 w-full bg-slate-100">
+        <div id="progress-bar" class="h-full bg-emerald-600 transition-all duration-300" style="width: 5%"></div>
+      </div>
+    </header>
+
+    <div class="mx-auto max-w-3xl px-4 py-5 sm:px-6 space-y-4">
+
+      <!-- SECTION 1 : QUESTION DE LA MAMAN (LE REGARD TOMBE DIRECTEMENT ICI) -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+        <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="flex size-6 items-center justify-center rounded-md bg-slate-100 text-slate-700">
+              <i data-lucide="user" class="size-3.5"></i>
+            </span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Question de la maman
+            </span>
+          </div>
+          <!-- Badges de contexte légers -->
+          <div class="flex items-center gap-1.5">
+            <span id="topic-pill" class="text-[11px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+              <span id="topic-text">Vaccination</span>
+            </span>
+            <span id="risk-pill" class="text-[11px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded">
+              <span id="risk-text">Routine</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- 1. En lettres françaises (Arabizi) en avant-première pour lecture immédiate -->
+        <div class="mb-4 rounded-xl bg-slate-50/80 p-3.5 border border-slate-100">
+          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
+            <i data-lucide="languages" class="size-3"></i>
+            En lettres françaises (Arabizi) :
+          </p>
+          <p id="question-lat-text" class="text-sm font-semibold text-slate-800 leading-relaxed">
+            ...
+          </p>
+        </div>
+
+        <!-- 2. En écriture arabe (Cairo) grand format lisible -->
+        <div class="rounded-xl bg-slate-50/80 p-3.5 border border-slate-100">
+          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 text-right">
+            بالحروف العربية :
+          </p>
+          <p id="question-ar-text" dir="rtl" lang="ar" class="font-arabic text-right text-base font-bold text-slate-900 leading-relaxed">
+            ...
+          </p>
+        </div>
+      </section>
+
+      <!-- SECTION 2 : RÉPONSE PROPOSÉE PAR L'ASSISTANT (NETTE & CLAIRE) -->
+      <section class="rounded-2xl border border-sky-200 bg-sky-50/40 p-5 shadow-xs">
+        <div class="flex items-center gap-2 mb-3 border-b border-sky-100 pb-2.5">
+          <span class="flex size-6 items-center justify-center rounded-md bg-sky-700 text-white">
+            <i data-lucide="message-square" class="size-3.5"></i>
+          </span>
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-900">
+            Réponse proposée par l'assistant
+          </span>
+        </div>
+
+        <div class="p-2">
+          <p id="ai-answer-text" dir="rtl" lang="ar" class="font-arabic text-right text-base font-semibold text-slate-900 leading-relaxed">
+            « ... »
+          </p>
+        </div>
+      </section>
+
+      <!-- SECTION 3 : DÉCISION MÉDICALE DU PRATICIEN -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
+        <div>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Votre évaluation clinique :</h2>
+          <p class="text-xs text-slate-700 font-medium mt-0.5">Cette réponse est-elle médicale et sûre pour la mère et l'enfant ?</p>
+        </div>
+
+        <!-- 3 Boutons tactiles directs -->
+        <div class="grid gap-2.5 sm:grid-cols-3">
+          <button
+            id="btn-valider"
+            type="button"
+            class="decision-btn flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left hover:border-slate-300 hover:bg-slate-50 transition cursor-pointer"
+          >
+            <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800">
+              <i data-lucide="check" class="size-4"></i>
+            </span>
+            <div>
+              <span class="block text-xs font-bold text-slate-900">Valider</span>
+              <span class="block text-[11px] text-slate-500">Conforme & sûr</span>
+            </div>
+          </button>
+
+          <button
+            id="btn-corriger"
+            type="button"
+            class="decision-btn flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left hover:border-slate-300 hover:bg-slate-50 transition cursor-pointer"
+          >
+            <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-800">
+              <i data-lucide="edit-3" class="size-4"></i>
+            </span>
+            <div>
+              <span class="block text-xs font-bold text-slate-900">Corriger</span>
+              <span class="block text-[11px] text-slate-500">Modifier le texte</span>
+            </div>
+          </button>
+
+          <button
+            id="btn-rejeter"
+            type="button"
+            class="decision-btn flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left hover:border-slate-300 hover:bg-slate-50 transition cursor-pointer"
+          >
+            <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-rose-100 text-rose-800">
+              <i data-lucide="x" class="size-4"></i>
+            </span>
+            <div>
+              <span class="block text-xs font-bold text-slate-900">Rejeter</span>
+              <span class="block text-[11px] text-slate-500">Dangereux / erroné</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Correction dépliable -->
+        <div id="correction-box" class="hidden rounded-xl border border-amber-300 bg-amber-50/50 p-3.5 space-y-2">
+          <label for="corrected-answer-input" class="block text-xs font-bold text-amber-950">
+            Réponse Darja corrigée :
+          </label>
+          <p class="text-[11px] text-amber-800">
+            Modifiez directement le texte. Tolérance zéro pour les prescriptions ou posologies de médicaments.
+          </p>
+          <textarea
+            id="corrected-answer-input"
+            dir="rtl"
+            lang="ar"
+            rows="3"
+            class="font-arabic w-full rounded-lg border border-amber-300 bg-white p-2.5 text-right text-base leading-relaxed text-slate-900 outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-200"
+          ></textarea>
+        </div>
+
+        <!-- Rejet dépliable -->
+        <fieldset id="rejection-box" class="hidden rounded-xl border border-rose-300 bg-rose-50/50 p-3.5">
+          <legend class="text-xs font-bold text-rose-950 px-1">Motif(s) du rejet :</legend>
+          <div class="mt-2 grid gap-2 sm:grid-cols-2 text-xs">
+            <label class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-rose-100 cursor-pointer">
+              <input type="checkbox" value="drug-dose" class="reject-checkbox mt-0.5 size-4 accent-rose-700">
+              <span class="text-slate-700">Prescription de médicament / posologie interdite</span>
+            </label>
+            <label class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-rose-100 cursor-pointer">
+              <input type="checkbox" value="medical-danger" class="reject-checkbox mt-0.5 size-4 accent-rose-700">
+              <span class="text-slate-700">Erreur médicale ou danger clinique</span>
+            </label>
+            <label class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-rose-100 cursor-pointer">
+              <input type="checkbox" value="foreign-dialect" class="reject-checkbox mt-0.5 size-4 accent-rose-700">
+              <span class="text-slate-700">Dialecte non-algérien ou incompréhensible</span>
+            </label>
+            <label class="flex items-start gap-2 bg-white p-2.5 rounded-lg border border-rose-100 cursor-pointer">
+              <input type="checkbox" value="out-of-scope" class="reject-checkbox mt-0.5 size-4 accent-rose-700">
+              <span class="text-slate-700">Signe de danger vital non pris en compte</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Remarque clinique facultative -->
+        <div>
+          <label for="clinical-note-input" class="block text-xs font-semibold text-slate-700">
+            Remarque clinique <span class="font-normal text-slate-400">(facultatif)</span>
+          </label>
+          <input
+            id="clinical-note-input"
+            type="text"
+            placeholder="Ajoutez un contexte clinique sans donnée personnelle..."
+            maxlength="200"
+            class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100 placeholder:text-slate-400"
+          />
+        </div>
+
+        <div id="review-error" class="hidden text-xs font-semibold text-rose-700 p-2.5 bg-rose-50 border border-rose-200 rounded-lg">
+          <span id="review-error-text"></span>
+        </div>
+
+        <!-- Bouton de confirmation immédiate -->
+        <div class="pt-2">
+          <button
+            id="confirm-btn"
+            type="button"
+            class="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-3 px-6 text-sm shadow-xs transition active:scale-[0.99] cursor-pointer"
+          >
+            <span>Confirmer & question suivante</span>
+            <i data-lucide="arrow-right" class="size-4"></i>
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 4. SÉRIE TERMINÉE                                                         -->
+  <!-- ========================================================================= -->
+  <main id="complete-view" class="hidden min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8">
+    <section class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 text-center shadow-xs">
+      <span class="mx-auto flex size-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 mb-4">
+        <i data-lucide="check-check" class="size-6"></i>
+      </span>
+      <h1 id="completion-title" class="text-xl font-bold text-slate-900">
+        Merci Docteur !
+      </h1>
+      <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+        Vos évaluations sont enregistrées directement dans la base clinique NLParto.
+      </p>
+
+      <div class="grid grid-cols-3 gap-2 mt-5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
+        <div>
+          <p id="count-approved" class="text-xl font-bold text-emerald-700">0</p>
+          <p class="text-[11px] font-medium text-slate-500">Validées</p>
+        </div>
+        <div>
+          <p id="count-corrected" class="text-xl font-bold text-amber-700">0</p>
+          <p class="text-[11px] font-medium text-slate-500">Corrigées</p>
+        </div>
+        <div>
+          <p id="count-rejected" class="text-xl font-bold text-rose-700">0</p>
+          <p class="text-[11px] font-medium text-slate-500">Rejetées</p>
+        </div>
+      </div>
+
+      <div class="mt-6 flex flex-col sm:flex-row gap-2.5">
+        <button
+          id="restart-series-btn"
+          type="button"
+          class="flex-1 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2.5 px-4 text-xs shadow-xs transition cursor-pointer"
+        >
+          Évaluer une autre série
+        </button>
+        <button
+          id="finish-btn"
+          type="button"
+          class="rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold py-2.5 px-4 text-xs transition cursor-pointer"
+        >
+          Changer de profil
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT LOGIC                                                          -->
+  <!-- ========================================================================= -->
+  <script>
+    const ROLES = [
+      { value: 'medical-student', label: 'Étudiant en médecine', detail: 'Externe (4e-6e année)' },
+      { value: 'intern', label: 'Interne en médecine', detail: 'Formation hospitalière' },
+      { value: 'resident', label: 'Médecin Résident', detail: 'Pédiatrie / Gynécologie / Santé' },
+      { value: 'general-practitioner', label: 'Médecin Généraliste', detail: 'Soins de première ligne' },
+      { value: 'specialist', label: 'Médecin Spécialiste', detail: 'Pédiatre / Gynéco-obstétricien' },
+      { value: 'midwife', label: "Sage-Femme diplômée", detail: 'Santé maternelle & néonatale' },
+    ];
+
+    const TOPIC_LABELS = {
+      vaccination: 'Vaccination',
+      newborn: 'Nouveau-né',
+      newborn_care: 'Nouveau-né',
+      breastfeeding: 'Allaitement',
+      nutrition: 'Nutrition',
+      pregnancy: 'Grossesse',
+      postpartum: 'Post-partum',
+      emergency: 'Urgences',
+      danger_signs: 'Urgence',
+    };
+
+    const RISK_LABELS = {
+      routine: 'Routine',
+      general: 'Général',
+      risky: 'Attention',
+      'high-risk': 'Risque élevé',
+      critical: 'Urgence',
+      danger: 'Urgence'
+    };
+
+    const PROFILE_KEY = 'nlparto-reviewer-profile';
+
+    let state = {
+      reviewer: { name: '', role: 'general-practitioner' },
+      sessionId: '',
+      dialogues: [],
+      currentIndex: 0,
+      decision: null,
+      decisions: [],
+      questionStartedAt: Date.now()
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderRoles();
+      lucide.createIcons();
+      initProfile();
+    });
+
+    function initProfile() {
+      const saved = localStorage.getItem(PROFILE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.name && ROLES.some(r => r.value === parsed.role)) {
+            state.reviewer = parsed;
+            loadDialogues();
+            return;
+          }
+        } catch (e) {
+          localStorage.removeItem(PROFILE_KEY);
+        }
+      }
+      showView('onboarding');
+    }
+
+    function renderRoles() {
+      const grid = document.getElementById('roles-grid');
+      grid.innerHTML = ROLES.map(role => `
+        <label class="role-card flex cursor-pointer items-start gap-2.5 rounded-xl border p-2.5 transition border-slate-200 hover:border-slate-300 hover:bg-slate-50" data-role="${role.value}">
+          <input
+            type="radio"
+            name="medical-role"
+            value="${role.value}"
+            ${state.reviewer.role === role.value ? 'checked' : ''}
+            class="mt-0.5 size-3.5 accent-emerald-700"
+          />
+          <div>
+            <span class="block text-xs font-bold text-slate-900">${role.label}</span>
+            <span class="block text-[11px] text-slate-500 leading-tight">${role.detail}</span>
+          </div>
+        </label>
+      `).join('');
+
+      grid.querySelectorAll('input[name="medical-role"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          state.reviewer.role = e.target.value;
+          updateRoleSelection();
+        });
+      });
+      updateRoleSelection();
+    }
+
+    function updateRoleSelection() {
+      document.querySelectorAll('.role-card').forEach(card => {
+        const val = card.getAttribute('data-role');
+        if (val === state.reviewer.role) {
+          card.className = 'role-card flex cursor-pointer items-start gap-2.5 rounded-xl border p-2.5 transition border-emerald-700 bg-emerald-50/60 ring-1 ring-emerald-700';
+        } else {
+          card.className = 'role-card flex cursor-pointer items-start gap-2.5 rounded-xl border p-2.5 transition border-slate-200 hover:border-slate-300 hover:bg-slate-50';
+        }
+      });
+    }
+
+    function showView(viewId) {
+      document.getElementById('loading-view').classList.add('hidden');
+      document.getElementById('onboarding-view').classList.add('hidden');
+      document.getElementById('review-view').classList.add('hidden');
+      document.getElementById('complete-view').classList.add('hidden');
+
+      if (viewId === 'onboarding') {
+        document.getElementById('reviewer-name-input').value = state.reviewer.name || '';
+        document.getElementById('onboarding-view').classList.remove('hidden');
+      } else if (viewId === 'review') {
+        document.getElementById('review-view').classList.remove('hidden');
+      } else if (viewId === 'complete') {
+        document.getElementById('complete-view').classList.remove('hidden');
+      } else if (viewId === 'loading') {
+        document.getElementById('loading-view').classList.remove('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    function startSeries() {
+      const nameInput = document.getElementById('reviewer-name-input').value.trim();
+      const errBox = document.getElementById('onboarding-error');
+      if (nameInput.length < 2) {
+        errBox.textContent = 'Veuillez saisir votre nom ou vos initiales.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+      errBox.classList.add('hidden');
+      state.reviewer.name = nameInput;
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(state.reviewer));
+      loadDialogues();
+    }
+
+    async function loadDialogues() {
+      showView('loading');
+      state.sessionId = 'sess-' + Math.random().toString(36).substring(2, 9);
+      try {
+        const res = await fetch(`/api/dialogues?session_id=${state.sessionId}&name=${encodeURIComponent(state.reviewer.name)}&role=${state.reviewer.role}`);
+        const data = await res.json();
+        if (data && data.dialogues && data.dialogues.length > 0) {
+          state.dialogues = data.dialogues;
+          state.currentIndex = 0;
+          state.decisions = [];
+          renderCurrentQuestion();
+          showView('review');
+        } else {
+          alert('Toutes les questions disponibles ont déjà été évaluées.');
+          showView('onboarding');
+        }
+      } catch (err) {
+        console.error('Erreur:', err);
+        alert('Impossible de contacter le serveur.');
+        showView('onboarding');
+      }
+    }
+
+    function renderCurrentQuestion() {
+      const q = state.dialogues[state.currentIndex];
+      if (!q) {
+        finishSeries();
+        return;
+      }
+
+      state.decision = null;
+      state.questionStartedAt = Date.now();
+
+      const roleObj = ROLES.find(r => r.value === state.reviewer.role) || ROLES[3];
+      document.getElementById('nav-reviewer-name').textContent = state.reviewer.name;
+      document.getElementById('nav-reviewer-role').textContent = roleObj.label;
+
+      const total = state.dialogues.length;
+      document.getElementById('question-counter').textContent = `Question ${state.currentIndex + 1} / ${total}`;
+      const pct = Math.round(((state.currentIndex + 1) / total) * 100);
+      document.getElementById('progress-bar').style.width = `${pct}%`;
+
+      const topicLabel = TOPIC_LABELS[q.topic] || q.topic || 'Santé';
+      const riskLabel = RISK_LABELS[q.riskLevel] || q.riskLevel || 'Routine';
+      document.getElementById('topic-text').textContent = topicLabel;
+      document.getElementById('risk-text').textContent = riskLabel;
+
+      // Question de la maman : Affichage net
+      document.getElementById('question-lat-text').textContent = q.questionArabizi || '—';
+      document.getElementById('question-ar-text').textContent = q.questionArabic || '';
+
+      // Réponse proposée : Affichage grand format lisible
+      document.getElementById('ai-answer-text').textContent = `« ${q.aiAnswer || ''} »`;
+
+      // Réinitialiser les champs de décision
+      document.getElementById('corrected-answer-input').value = q.aiAnswer || '';
+      document.getElementById('clinical-note-input').value = '';
+      document.querySelectorAll('.reject-checkbox').forEach(cb => cb.checked = false);
+      document.getElementById('review-error').classList.add('hidden');
+
+      resetDecisionButtons();
+      lucide.createIcons();
+    }
+
+    function resetDecisionButtons() {
+      const bV = document.getElementById('btn-valider');
+      const bC = document.getElementById('btn-corriger');
+      const bR = document.getElementById('btn-rejeter');
+
+      const baseClass = 'decision-btn flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left hover:border-slate-300 hover:bg-slate-50 transition cursor-pointer';
+      bV.className = baseClass;
+      bC.className = baseClass;
+      bR.className = baseClass;
+
+      document.getElementById('correction-box').classList.add('hidden');
+      document.getElementById('rejection-box').classList.add('hidden');
+    }
+
+    document.getElementById('btn-valider').addEventListener('click', () => {
+      resetDecisionButtons();
+      state.decision = 'approved';
+      document.getElementById('btn-valider').className = 'decision-btn flex items-center gap-3 rounded-xl border border-emerald-600 bg-emerald-50 text-emerald-900 p-3 text-left ring-1 ring-emerald-600 cursor-pointer';
+    });
+
+    document.getElementById('btn-corriger').addEventListener('click', () => {
+      resetDecisionButtons();
+      state.decision = 'corrected';
+      document.getElementById('btn-corriger').className = 'decision-btn flex items-center gap-3 rounded-xl border border-amber-500 bg-amber-50 text-amber-900 p-3 text-left ring-1 ring-amber-500 cursor-pointer';
+      document.getElementById('correction-box').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-rejeter').addEventListener('click', () => {
+      resetDecisionButtons();
+      state.decision = 'rejected';
+      document.getElementById('btn-rejeter').className = 'decision-btn flex items-center gap-3 rounded-xl border border-rose-500 bg-rose-50 text-rose-900 p-3 text-left ring-1 ring-rose-500 cursor-pointer';
+      document.getElementById('rejection-box').classList.remove('hidden');
+    });
+
+    // Enregistrement direct & immédiat
+    document.getElementById('confirm-btn').addEventListener('click', async () => {
+      const errBox = document.getElementById('review-error');
+      const errText = document.getElementById('review-error-text');
+
+      if (!state.decision) {
+        errText.textContent = 'Sélectionnez Valider, Corriger ou Rejeter avant de continuer.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      const q = state.dialogues[state.currentIndex];
+      const corrected = document.getElementById('corrected-answer-input').value.trim();
+      const reasons = Array.from(document.querySelectorAll('.reject-checkbox:checked')).map(cb => cb.value);
+      const notes = document.getElementById('clinical-note-input').value.trim();
+
+      if (state.decision === 'corrected' && corrected.length < 5) {
+        errText.textContent = 'Veuillez saisir la correction avant de confirmer.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      if (state.decision === 'rejected' && reasons.length === 0 && notes.length === 0) {
+        errText.textContent = 'Sélectionnez au moins un motif de rejet ou ajoutez une explication.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      errBox.classList.add('hidden');
+
+      const payload = {
+        dialogueId: q.id,
+        reviewerName: state.reviewer.name,
+        reviewerRole: state.reviewer.role,
+        sessionId: state.sessionId,
+        decision: state.decision,
+        correctedAnswer: state.decision === 'corrected' ? corrected : '',
+        rejectionReasons: state.decision === 'rejected' ? reasons : [],
+        clinicalNote: notes,
+        elapsedSeconds: Math.round((Date.now() - state.questionStartedAt) / 1000)
+      };
+
+      const btn = document.getElementById('confirm-btn');
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="size-4 animate-spin"></i> Enregistrement...`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        btn.disabled = false;
+        btn.innerHTML = `<span>Confirmer & question suivante</span><i data-lucide="arrow-right" class="size-4"></i>`;
+
+        if (!result.success) {
+          errText.textContent = result.message || 'Erreur lors de la sauvegarde.';
+          errBox.classList.remove('hidden');
+          return;
+        }
+
+        state.decisions.push(state.decision);
+        state.currentIndex++;
+
+        if (state.currentIndex >= state.dialogues.length) {
+          finishSeries();
+        } else {
+          renderCurrentQuestion();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Confirmer & question suivante</span><i data-lucide="arrow-right" class="size-4"></i>`;
+        errText.textContent = 'Erreur réseau lors de la sauvegarde.';
+        errBox.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('quit-btn').addEventListener('click', async () => {
+      if (confirm('Quitter la série ? Les questions déjà validées restent sécurisées.')) {
+        await fetch(`/api/release?session_id=${state.sessionId}`, { method: 'POST' });
+        showView('onboarding');
+      }
+    });
+
+    function finishSeries() {
+      const approved = state.decisions.filter(d => d === 'approved').length;
+      const corrected = state.decisions.filter(d => d === 'corrected').length;
+      const rejected = state.decisions.filter(d => d === 'rejected').length;
+
+      document.getElementById('count-approved').textContent = approved;
+      document.getElementById('count-corrected').textContent = corrected;
+      document.getElementById('count-rejected').textContent = rejected;
+
+      showView('complete');
+    }
+
+    document.getElementById('restart-series-btn').addEventListener('click', () => {
+      loadDialogues();
+    });
+
+    document.getElementById('finish-btn').addEventListener('click', () => {
+      showView('onboarding');
+    });
+  </script>
+</body>
+</html>
