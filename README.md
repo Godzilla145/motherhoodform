@@ -15,3 +15,4 @@ streamlit run app.py
 # Ou avec le serveur web autonome :
 python server.py
 ```
+
