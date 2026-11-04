@@ -11,13 +11,19 @@ from pathlib import Path
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 LOCAL_DIR = Path(__file__).resolve().parent
 
-POOL_CSV = DATA_DIR / "qa_pool.csv"
-if not POOL_CSV.exists():
-    POOL_CSV = LOCAL_DIR / "qa_pool.csv"
+TEST_MODE = os.environ.get("NLP_TEST_MODE", "true").lower() in ("true", "1", "yes")
 
-REVIEWS_CSV = DATA_DIR / "reviews.csv"
-if not REVIEWS_CSV.parent.exists():
-    REVIEWS_CSV = LOCAL_DIR / "reviews.csv"
+if TEST_MODE and (LOCAL_DIR / "qa_pool_test.csv").exists():
+    POOL_CSV = LOCAL_DIR / "qa_pool_test.csv"
+    REVIEWS_CSV = LOCAL_DIR / "reviews_test.csv"
+else:
+    POOL_CSV = DATA_DIR / "qa_pool.csv"
+    if not POOL_CSV.exists():
+        POOL_CSV = LOCAL_DIR / "qa_pool.csv"
+
+    REVIEWS_CSV = DATA_DIR / "reviews.csv"
+    if not REVIEWS_CSV.parent.exists():
+        REVIEWS_CSV = LOCAL_DIR / "reviews.csv"
 
 FACTS_CSV = DATA_DIR / "facts_expanded.csv"
 if not FACTS_CSV.exists():
