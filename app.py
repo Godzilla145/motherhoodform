@@ -200,7 +200,15 @@ if "batch_stats" not in st.session_state:
     st.session_state["batch_stats"] = {"valider": 0, "corriger": 0, "rejeter": 0}
 
 if "app_view" not in st.session_state:
-    st.session_state["app_view"] = "evaluation"
+    try:
+        # Check query parameters for direct link access
+        qp = st.query_params.get("view", "")
+        if qp == "dashboard":
+            st.session_state["app_view"] = "dashboard"
+        else:
+            st.session_state["app_view"] = "evaluation"
+    except Exception:
+        st.session_state["app_view"] = "evaluation"
 
 # -----------------------------------------------------------------------------
 # BARRE SUPÉRIEURE DE NAVIGATION GLOBALE
@@ -230,6 +238,10 @@ with nav_col2:
     )
     if view_choice != st.session_state["app_view"]:
         st.session_state["app_view"] = view_choice
+        try:
+            st.query_params["view"] = view_choice
+        except Exception:
+            pass
         st.rerun()
 
 render_html("<hr style='border: none; border-top: 1px solid #e2e8f0; margin: 10px 0 16px 0;'>")
