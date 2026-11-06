@@ -1,5 +1,6 @@
 """State management for the NLParto review app — Windows compatible.
-Immediate persistence, double-review prevention, and full profile tracking.
+Immediate persistence, double-review prevention, full profile tracking,
+and comprehensive supervisor analytics metrics.
 """
 import csv
 import json
@@ -97,9 +98,11 @@ def _write_pool(rows):
     """Write rows back to qa_pool.csv safely."""
     if not rows:
         return
-    # Ensure all required review tracking columns exist
     fieldnames = list(rows[0].keys())
-    for col in ["reviewer_id", "reviewer_name", "reviewer_role", "review_decision", "review_notes", "corrected_answer", "reviewed_at"]:
+    for col in [
+        "reviewer_id", "reviewer_name", "reviewer_email", "reviewer_role",
+        "review_decision", "review_notes", "corrected_answer", "reviewed_at"
+    ]:
         if col not in fieldnames:
             fieldnames.append(col)
 
@@ -109,56 +112,53 @@ def _write_pool(rows):
         w.writeheader()
         w.writerows(rows)
     
-    # Atomic replace
     if os.path.exists(POOL_CSV):
         os.replace(tmp_path, POOL_CSV)
     else:
         os.rename(tmp_path, POOL_CSV)
 
 
-def claim_batch(session_id: str, reviewer_name: str, reviewer_role: str, batch_size: int = BATCH_SIZE):
-    """Reserve a batch of pending rows exclusively for this reviewer.
-    
-    Guarantees that no two doctors receive the same question.
-    """
+def claim_batch(
+    session_id: str,
+    reviewer_name: str,
+    reviewer_role: str,
+    reviewer_email: str = "",
+    batch_size: int = BATCH_SIZE
+):
+    """Reserve a batch of pending rows exclusively for this reviewer."""
     rows = _read_pool()
     if not rows:
         return []
 
-    # Filter only unreviewed questions
     pending = [r for r in rows if r.get("review_status") == "pending"]
     if not pending:
         return []
 
-    # Pick up to batch_size questions
     chosen = random.sample(pending, min(batch_size, len(pending)))
     batch_ids = {r["id"] for r in chosen}
     facts_dict = _read_facts()
 
-    # Lock them in the pool as 'in_progress'
     for r in rows:
         if r["id"] in batch_ids:
             r["review_status"] = "in_progress"
             r["reviewer_id"] = session_id
             r["reviewer_name"] = reviewer_name
+            r["reviewer_email"] = reviewer_email
             r["reviewer_role"] = reviewer_role
 
     _write_pool(rows)
 
-    # Enrich questions with official fact references & sources
     enriched = []
     for item in chosen:
         row_dict = dict(item)
         fid = row_dict.get("fact_id", "")
         fact_info = facts_dict.get(fid, {})
 
-        # Fact FR
         if fact_info.get("fact_fr"):
             row_dict["fact_fr"] = fact_info["fact_fr"]
         elif row_dict.get("fact_fr"):
             pass
         else:
-            # Fallback according to topic
             topic = row_dict.get("topic", "")
             if topic == "vaccination":
                 row_dict["fact_fr"] = "À l'âge de 2 mois, le nourrisson reçoit les vaccins prévus par le calendrier national algérien. Une réaction locale ou une fièvre modérée peut survenir; les signes inhabituels doivent être évalués par un professionnel."
@@ -169,7 +169,6 @@ def claim_batch(session_id: str, reviewer_name: str, reviewer_role: str, batch_s
             else:
                 row_dict["fact_fr"] = "Toute situation clinique présentant des symptômes inhabituels chez la mère ou l'enfant doit faire l'objet d'un examen médical direct par un praticien qualifié."
 
-        # Source
         source = fact_info.get("source") or fact_info.get("source_status") or "Ministère de la Santé — Guide de prise en charge clinique"
         if "Calendrier" in str(source) or row_dict.get("topic") == "vaccination":
             row_dict["fact_source"] = "Ministère de la Santé — Calendrier national de vaccination"
@@ -185,22 +184,23 @@ def claim_batch(session_id: str, reviewer_name: str, reviewer_role: str, batch_s
     return enriched
 
 
+get_or_create_batch = claim_batch
+
+
 def save_single_decision(
     row_id: str,
     decision: str,
-    corrected_text: str,
-    reject_reasons: list,
-    notes: str,
-    session_id: str,
-    reviewer_name: str,
-    reviewer_role: str
+    corrected_text: str = "",
+    reject_reasons: list = None,
+    notes: str = "",
+    session_id: str = "",
+    reviewer_name: str = "",
+    reviewer_role: str = "",
+    reviewer_email: str = ""
 ):
-    """Immediately persists a single decision for one question.
-    
-    This writes directly to qa_pool.csv (marking status 'reviewed') and
-    appends to reviews.csv. Called as soon as the doctor clicks Confirmer.
-    """
+    """Immediately persists a single decision for one question."""
     now_str = time.strftime("%Y-%m-%dT%H:%M:%S")
+    reject_reasons = reject_reasons or []
 
     # 1. Update qa_pool.csv
     rows = _read_pool()
@@ -210,6 +210,7 @@ def save_single_decision(
             r["review_status"] = "reviewed"
             r["reviewer_id"] = session_id
             r["reviewer_name"] = reviewer_name
+            r["reviewer_email"] = reviewer_email
             r["reviewer_role"] = reviewer_role
             r["review_decision"] = decision
             r["review_notes"] = notes or ""
@@ -229,6 +230,7 @@ def save_single_decision(
                 "row_id",
                 "session_id",
                 "reviewer_name",
+                "reviewer_email",
                 "reviewer_role",
                 "decision",
                 "corrected_text",
@@ -240,6 +242,7 @@ def save_single_decision(
             row_id,
             session_id,
             reviewer_name,
+            reviewer_email,
             reviewer_role,
             decision,
             corrected_text or "",
@@ -247,6 +250,10 @@ def save_single_decision(
             notes or "",
             now_str
         ])
+    return True
+
+
+save_review = save_single_decision
 
 
 def release_batch(session_id: str):
@@ -272,3 +279,79 @@ def pool_stats():
         "in_progress": statuses.count("in_progress"),
         "reviewed": statuses.count("reviewed"),
     }
+
+
+def get_dashboard_metrics():
+    """Consolidated supervisor analytics for the review dashboard."""
+    # 1. Pool progress
+    pool_rows = _read_pool()
+    pool_total = len(pool_rows)
+    pool_statuses = [r.get("review_status", "pending") for r in pool_rows]
+    pool_reviewed = pool_statuses.count("reviewed")
+    pool_in_progress = pool_statuses.count("in_progress")
+    pool_pending = pool_statuses.count("pending")
+
+    # 2. Review records
+    reviews = []
+    if REVIEWS_CSV.exists():
+        with open(REVIEWS_CSV, newline="", encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f)
+            reviews = list(reader)
+
+    total_reviews = len(reviews)
+    decisions = {"valider": 0, "corriger": 0, "rejeter": 0}
+    reject_reasons = {}
+    reviewers = {}
+
+    for r in reviews:
+        dec = (r.get("decision") or "").lower().strip()
+        if dec in decisions:
+            decisions[dec] += 1
+        
+        name = (r.get("reviewer_name") or "Anonyme").strip() or "Anonyme"
+        email = (r.get("reviewer_email") or "").strip() or "Non renseigné"
+        role = (r.get("reviewer_role") or "generaliste").strip()
+        ts = r.get("timestamp") or r.get("reviewed_at") or ""
+
+        rev_key = (name.lower(), email.lower())
+        if rev_key not in reviewers:
+            reviewers[rev_key] = {
+                "name": name,
+                "email": email,
+                "role": role,
+                "total": 0,
+                "valider": 0,
+                "corriger": 0,
+                "rejeter": 0,
+                "last_active": ts
+            }
+        reviewers[rev_key]["total"] += 1
+        if dec in reviewers[rev_key]:
+            reviewers[rev_key][dec] += 1
+        if ts and ts > reviewers[rev_key]["last_active"]:
+            reviewers[rev_key]["last_active"] = ts
+
+        reasons = r.get("reject_reasons") or ""
+        if reasons:
+            for reason in reasons.split(";"):
+                reason = reason.strip()
+                if reason:
+                    reject_reasons[reason] = reject_reasons.get(reason, 0) + 1
+
+    reviewer_list = sorted(reviewers.values(), key=lambda x: x["total"], reverse=True)
+
+    return {
+        "pool_total": pool_total,
+        "pool_reviewed": pool_reviewed,
+        "pool_pending": pool_pending,
+        "pool_in_progress": pool_in_progress,
+        "total_reviews": total_reviews,
+        "decisions": decisions,
+        "reviewer_list": reviewer_list,
+        "reject_reasons": reject_reasons,
+        "recent_reviews": list(reversed(reviews[-50:])) if reviews else [],
+        "reviews_file_path": str(REVIEWS_CSV)
+    }
+
+
+get_statistics = get_dashboard_metrics
