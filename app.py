@@ -1,6 +1,6 @@
-"""NLParto - Plateforme de Validation Clinique & Dashboard Superviseur
-Design Médical Professionnel inspiré des composants 21st.dev (Thème Emerald Slate & Approval Card).
-Zéro gradient IA superflu, icônes vectorielles médicales pures, ergonomie hospitalière directe.
+"""NLParto - Plateforme d'Évaluation Clinique
+Design Médical Professionnel (Tokens 21st.dev — Thème Emerald Slate & Approval Card).
+Zéro gradient IA superflu, typographie médicale hospitalière épurée, ergonomie fluide.
 """
 import os
 import sys
@@ -23,31 +23,28 @@ from state import (
 # Configuration Streamlit
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NLParto — Revue Clinique & Dashboard",
+    page_title="NLParto — Évaluation Clinique",
     page_icon="🩺",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
 # -----------------------------------------------------------------------------
-# Bibliothèque d'Icônes Vectorielles Médicales (SVG Purs & Précis — ZÉRO Emoji)
+# Bibliothèque d'Icônes Vectorielles Médicales (SVG Purs — ZÉRO Emoji)
 # -----------------------------------------------------------------------------
 ICONS = {
-    "stethoscope": '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>',
-    "shield_check": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
-    "user_md": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11v4"/><path d="M10 13h4"/></svg>',
-    "message_clinical": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-    "languages": '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>',
-    "clipboard_check": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
-    "check_ring": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
-    "baby": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/></svg>',
-    "chart": '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>',
-    "users": '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-    "download": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
+    "stethoscope": '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>',
+    "shield_check": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
+    "user_md": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11v4"/><path d="M10 13h4"/></svg>',
+    "message_clinical": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+    "languages": '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>',
+    "clipboard_check": '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>',
+    "check_ring": '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    "baby": '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/></svg>',
 }
 
 def render_html(html_str: str):
-    """Rendu HTML direct et propre sans artefacts markdown."""
+    """Rendu HTML propre et robuste."""
     clean_lines = [line.strip() for line in html_str.splitlines() if line.strip()]
     cleaned = "\n".join(clean_lines)
     if hasattr(st, "html"):
@@ -56,7 +53,7 @@ def render_html(html_str: str):
         st.markdown(cleaned, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# CSS Thème Emerald Slate (Tokens 21st.dev) : Calme, Hospitalier, Zéro Dégradé IA
+# CSS Thème Emerald Slate (Tokens 21st.dev) : Élégance Médicale & Clarté
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -66,15 +63,12 @@ st.markdown("""
         --bg-main: #f8fafc;
         --surface: #ffffff;
         --border-default: #e2e8f0;
-        --border-subtle: #f1f5f9;
+        --border-focus: #059669;
         --text-primary: #0f172a;
         --text-secondary: #334155;
         --text-muted: #64748b;
         --primary-emerald: #059669;
         --primary-emerald-dark: #047857;
-        --accent-teal: #0d9488;
-        --warn-amber: #d97706;
-        --danger-rose: #e11d48;
     }
 
     html, body, [class*="css"], .stApp {
@@ -89,34 +83,52 @@ st.markdown("""
     }
 
     .block-container {
-        padding-top: 1.0rem !important;
-        padding-bottom: 2.8rem !important;
-        max-width: 780px !important;
+        padding-top: 1.5rem !important;
+        padding-bottom: 3rem !important;
+        max-width: 760px !important;
     }
 
-    div[data-testid="stVerticalBlockBorderWrapper"],
-    div[data-testid="stVerticalBlock"] > div[style*="border"] {
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        box-shadow: none !important;
-        background: transparent !important;
+    /* Unification des cartes Streamlit */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: #ffffff !important;
+        border: 1px solid var(--border-default) !important;
+        border-radius: 14px !important;
+        padding: 24px 28px !important;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02) !important;
     }
 
+    /* Labels élégants */
+    label[data-testid="stWidgetLabel"] p {
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+        color: var(--text-secondary) !important;
+        margin-bottom: 4px !important;
+    }
+
+    /* Champs de saisie */
     div[data-testid="stTextInput"] input {
         border-radius: 8px !important;
-        border: 1px solid var(--border-default) !important;
+        border: 1px solid #cbd5e1 !important;
         background-color: #ffffff !important;
-        padding: 9px 12px !important;
-        font-size: 0.9rem !important;
+        padding: 10px 14px !important;
+        font-size: 0.92rem !important;
         color: var(--text-primary) !important;
         box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
     }
     div[data-testid="stTextInput"] input:focus {
         border-color: var(--primary-emerald) !important;
         box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12) !important;
     }
 
+    /* Sélecteur de rôle */
+    div[data-testid="stSelectbox"] > div {
+        border-radius: 8px !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+    }
+
+    /* Bouton secondaire */
     button[data-testid="stBaseButton-secondary"] {
         background-color: #ffffff !important;
         color: var(--text-secondary) !important;
@@ -129,10 +141,11 @@ st.markdown("""
     }
     button[data-testid="stBaseButton-secondary"]:hover {
         background-color: #f8fafc !important;
-        border-color: #cbd5e1 !important;
+        border-color: #94a3b8 !important;
         color: var(--text-primary) !important;
     }
 
+    /* Bouton primaire émeraude */
     button[data-testid="stBaseButton-primary"] {
         background-color: var(--primary-emerald) !important;
         color: #ffffff !important;
@@ -140,13 +153,15 @@ st.markdown("""
         border-radius: 8px !important;
         font-weight: 600 !important;
         font-size: 0.92rem !important;
-        box-shadow: 0 1px 2px rgba(5, 150, 105, 0.2) !important;
+        box-shadow: 0 1px 3px rgba(5, 150, 105, 0.25) !important;
         transition: all 0.15s ease-in-out !important;
     }
     button[data-testid="stBaseButton-primary"]:hover {
         background-color: var(--primary-emerald-dark) !important;
+        box-shadow: 0 2px 5px rgba(5, 150, 105, 0.35) !important;
     }
 
+    /* Zone de texte correction */
     div[data-testid="stTextArea"] textarea {
         font-family: 'Cairo', sans-serif !important;
         direction: rtl !important;
@@ -154,11 +169,16 @@ st.markdown("""
         font-size: 1.18rem !important;
         line-height: 1.65 !important;
         border-radius: 8px !important;
-        border: 1px solid #fde68a !important;
-        background-color: #fffefb !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
         color: #0f172a !important;
     }
+    div[data-testid="stTextArea"] textarea:focus {
+        border-color: var(--primary-emerald) !important;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12) !important;
+    }
 
+    /* Barre de progression */
     div[data-testid="stProgress"] > div > div > div {
         background-color: var(--primary-emerald) !important;
     }
@@ -199,209 +219,166 @@ if "batch_stats" not in st.session_state:
     st.session_state["batch_stats"] = {"valider": 0, "corriger": 0, "rejeter": 0}
 
 
-
-# -----------------------------------------------------------------------------
-# En-tête Médical Officiel (100% Dédié Praticiens & Évaluateurs)
-# -----------------------------------------------------------------------------
-render_html(f"""
-<div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0;">
-    <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #059669; border-radius: 8px; color: white;">
-            {ICONS['stethoscope']}
-        </span>
-        <div>
-            <span style="font-weight: 700; font-size: 1.15rem; color: #0f172a; letter-spacing: -0.3px;">NLParto</span>
-            <span style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; font-size: 0.72rem; font-weight: 600; padding: 2px 7px; border-radius: 5px; margin-left: 6px;">
-                Évaluation Clinique
-            </span>
-        </div>
-    </div>
-    <span style="color: #64748b; font-size: 0.78rem;">
-        Santé Maternelle &amp; Infantile
-    </span>
-</div>
-""")
-
-# -------------------------------------------------------------------------
-# ÉCRAN D'ACCUEIL / IDENTIFICATION
-# -------------------------------------------------------------------------
+# =============================================================================
+# ÉCRAN 1 : ONBOARDING / IDENTIFICATION UNIQUE & ÉLÉGANTE (CARTE UNIFIÉE)
+# =============================================================================
 if not st.session_state["authenticated"]:
-    render_html(f"""
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px 24px; box-shadow: 0 1px 3px rgba(15,23,42,0.03); margin-bottom: 16px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-            <span style="display: inline-flex; align-items: center; gap: 5px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; font-size: 0.74rem; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
-                {ICONS['shield_check']}
-                Protocole Clinique Officiel
+    with st.container(border=True):
+        render_html(f"""
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: #ecfdf5; border-radius: 10px; color: #059669;">
+                    {ICONS['stethoscope']}
+                </span>
+                <div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">
+                        NLParto — Évaluation Clinique
+                    </div>
+                    <div style="font-size: 0.8rem; color: #64748b;">
+                        Validation experte des dialogues en Darja algérienne
+                    </div>
+                </div>
+            </div>
+            <span style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; font-size: 0.72rem; font-weight: 600; padding: 4px 10px; border-radius: 6px;">
+                Protocole Hospitalier
             </span>
-            <span style="background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; font-size: 0.7rem; font-weight: 600; padding: 3px 8px; border-radius: 5px;">
-                Mode Test Isolé (reviews_test.csv)
-            </span>
         </div>
-        <div style="font-size: 1.2rem; font-weight: 700; color: #0f172a; line-height: 1.35; margin-bottom: 4px;">
-            Validation clinique des dialogues en Darja algérienne
+        
+        <div style="font-size: 0.86rem; color: #475569; line-height: 1.5; margin-bottom: 20px;">
+            Bienvenue sur la plateforme d'évaluation hospitalière. Veuillez renseigner vos coordonnées pour attribuer vos validations cliniques et accéder aux séries de questions.
         </div>
-        <div style="font-size: 0.86rem; color: #475569; line-height: 1.45; margin-bottom: 18px;">
-            Évaluez la pertinence et la sécurité des réponses proposées aux mamans. Aucun mot de passe requis.
-        </div>
-        <hr style="border: none; border-top: 1px solid #f1f5f9; margin-bottom: 16px;">
-        <div style="font-size: 0.84rem; font-weight: 700; color: #0f172a; margin-bottom: 2px;">
-            1. Identifiant & Coordonnées du praticien
-        </div>
-        <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px;">
-            Ces informations permettent le suivi déontologique dans le tableau de bord superviseur.
-        </div>
-    </div>
-    """)
+        <hr style="border: none; border-top: 1px solid #f1f5f9; margin-bottom: 20px;">
+        """)
 
-    col_name, col_email = st.columns(2)
-    with col_name:
-        st.markdown("<div style='font-size: 0.8rem; font-weight: 600; color: #334155; margin-bottom: 4px;'>Nom & Prénom du praticien :</div>", unsafe_allow_html=True)
-        name_input = st.text_input(
-            "Nom & Prénom",
-            value=st.session_state["reviewer_name"],
-            placeholder="Ex: Dr. Sarah Benali",
-            label_visibility="collapsed"
-        )
-
-    with col_email:
-        st.markdown("<div style='font-size: 0.8rem; font-weight: 600; color: #334155; margin-bottom: 4px;'>Email professionnel :</div>", unsafe_allow_html=True)
-        email_input = st.text_input(
-            "Email professionnel",
-            value=st.session_state["reviewer_email"],
-            placeholder="Ex: s.benali@chu-alger.dz",
-            label_visibility="collapsed"
-        )
-
-    render_html(f"""
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 22px; box-shadow: 0 1px 3px rgba(15,23,42,0.03); margin-top: 12px; margin-bottom: 14px;">
-        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-            <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; background: #ecfdf5; border-radius: 4px; color: #059669;">
-                {ICONS['user_md']}
-            </span>
-            <span style="font-size: 0.84rem; font-weight: 700; color: #0f172a;">2. Spécialité médicale</span>
-        </div>
-        <div style="font-size: 0.78rem; color: #64748b;">
-            Sélectionnez votre profil d'exercice pour la traçabilité clinique.
-        </div>
-    </div>
-    """)
-
-    ROLE_OPTIONS = {
-        "generaliste": "Médecin Généraliste",
-        "resident": "Médecin Résident (Pédiatrie / Gynécologie / Santé Publique)",
-        "pediatre": "Pédiatre Spécialiste",
-        "gynecologue": "Gynécologue-Obstétricien(ne)",
-        "sage_femme": "Sage-femme Diplômée d'État",
-        "etudiant": "Externe / Étudiant en Médecine (4e-6e année)"
-    }
-
-    selected_role = st.selectbox(
-        "Votre rôle médical",
-        options=list(ROLE_OPTIONS.keys()),
-        format_func=lambda k: ROLE_OPTIONS[k],
-        label_visibility="collapsed"
-    )
-
-    render_html(f"""
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 22px; box-shadow: 0 1px 3px rgba(15,23,42,0.03); margin-top: 12px; margin-bottom: 16px;">
-        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-            <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; background: #f1f5f9; border-radius: 4px; color: #475569;">
-                {ICONS['clipboard_check']}
-            </span>
-            <span style="font-size: 0.84rem; font-weight: 700; color: #0f172a;">3. Consignes déontologiques clés</span>
-        </div>
-        <ul style="font-size: 0.82rem; color: #334155; line-height: 1.5; margin: 8px 0 0 18px; padding: 0;">
-            <li><strong>Zéro posologie :</strong> L'assistant ne doit jamais prescrire de doses chiffrées en mg ou ml.</li>
-            <li><strong>Urgence vitale :</strong> Tout signe de danger impose une orientation immédiate vers les urgences.</li>
-            <li><strong>Darja naturelle :</strong> Vérifiez l'authenticité algérienne de l'expression.</li>
-        </ul>
-    </div>
-    """)
-
-    if st.button("Démarrer la série d'évaluation clinique →", type="primary", use_container_width=True):
-        if not name_input.strip():
-            st.error("Veuillez saisir votre nom ou identifiant professionnel.")
-        else:
-            st.session_state["reviewer_name"] = name_input.strip()
-            st.session_state["reviewer_email"] = email_input.strip()
-            st.session_state["reviewer_role"] = selected_role
-            batch = get_or_create_batch(
-                st.session_state["session_id"],
-                st.session_state["reviewer_name"],
-                st.session_state["reviewer_role"],
-                reviewer_email=st.session_state["reviewer_email"],
-                batch_size=20
+        col_name, col_email = st.columns(2)
+        with col_name:
+            name_input = st.text_input(
+                "Nom & Prénom du praticien :",
+                value=st.session_state["reviewer_name"],
+                placeholder="Ex: Dr. Sarah Benali"
             )
-            if not batch:
-                st.warning("Aucune question en attente de révision dans le pool actuel.")
-            else:
-                st.session_state["batch"] = batch
-                st.session_state["current_idx"] = 0
-                st.session_state["authenticated"] = True
-                st.session_state["completed"] = False
-                st.session_state["decision_choice"] = "valider"
-                st.rerun()
+        with col_email:
+            email_input = st.text_input(
+                "Email professionnel :",
+                value=st.session_state["reviewer_email"],
+                placeholder="Ex: s.benali@chu-alger.dz"
+            )
 
-# -------------------------------------------------------------------------
-# ÉCRAN DE FIN DE SÉRIE
-# -------------------------------------------------------------------------
+        ROLE_OPTIONS = {
+            "generaliste": "Médecin Généraliste",
+            "resident": "Médecin Résident (Pédiatrie / Gynécologie / Santé Publique)",
+            "pediatre": "Pédiatre Spécialiste",
+            "gynecologue": "Gynécologue-Obstétricien(ne)",
+            "sage_femme": "Sage-femme Diplômée d'État",
+            "etudiant": "Externe / Étudiant en Médecine (4e-6e année)"
+        }
+
+        selected_role = st.selectbox(
+            "Spécialité / Profil d'exercice :",
+            options=list(ROLE_OPTIONS.keys()),
+            format_func=lambda k: ROLE_OPTIONS[k]
+        )
+
+        render_html("""
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin: 20px 0 22px 0;">
+            <div style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #475569; margin-bottom: 8px;">
+                Rappels Déontologiques Majeurs
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; font-size: 0.79rem; color: #334155; line-height: 1.45;">
+                <div><strong>1. Zéro posologie :</strong> Aucune prescription de médicament ou de dose chiffrée.</div>
+                <div><strong>2. Urgence vitale :</strong> Orientation réflexe vers la maternité/urgences.</div>
+                <div><strong>3. Darja naturelle :</strong> Vérifier l'authenticité algérienne de l'expression.</div>
+            </div>
+        </div>
+        """)
+
+        if st.button("Démarrer la série d'évaluation clinique (20 questions) →", type="primary", use_container_width=True):
+            if not name_input.strip():
+                st.error("Veuillez saisir votre nom ou identifiant professionnel.")
+            else:
+                st.session_state["reviewer_name"] = name_input.strip()
+                st.session_state["reviewer_email"] = email_input.strip()
+                st.session_state["reviewer_role"] = selected_role
+                batch = get_or_create_batch(
+                    st.session_state["session_id"],
+                    st.session_state["reviewer_name"],
+                    st.session_state["reviewer_role"],
+                    reviewer_email=st.session_state["reviewer_email"],
+                    batch_size=20
+                )
+                if not batch:
+                    st.warning("Aucune question en attente de révision dans le pool actuel.")
+                else:
+                    st.session_state["batch"] = batch
+                    st.session_state["current_idx"] = 0
+                    st.session_state["authenticated"] = True
+                    st.session_state["completed"] = False
+                    st.session_state["decision_choice"] = "valider"
+                    st.rerun()
+
+
+# =============================================================================
+# ÉCRAN 2 : RÉSUMÉ DE FIN DE SÉRIE
+# =============================================================================
 elif st.session_state["completed"]:
     stats = st.session_state["batch_stats"]
 
-    render_html(f"""
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 28px 24px; text-align: center; box-shadow: 0 1px 3px rgba(15,23,42,0.03); margin-top: 14px;">
-        <div style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: #ecfdf5; border-radius: 12px; color: #059669; margin-bottom: 12px;">
-            {ICONS['check_ring']}
-        </div>
-        <div style="font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
-            Série d'évaluation complétée
-        </div>
-        <div style="font-size: 0.88rem; color: #475569; margin-bottom: 22px;">
-            Merci Dr. {st.session_state['reviewer_name']}. Vos évaluations ont été persistées immédiatement.
-        </div>
-        <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;">
-            <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 12px 18px; min-width: 100px;">
-                <div style="font-size: 1.4rem; font-weight: 700; color: #047857;">{stats['valider']}</div>
-                <div style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; color: #065f46;">Validées</div>
+    with st.container(border=True):
+        render_html(f"""
+        <div style="text-align: center; padding: 12px 10px;">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; background: #ecfdf5; border-radius: 14px; color: #059669; margin-bottom: 14px;">
+                {ICONS['check_ring']}
             </div>
-            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 18px; min-width: 100px;">
-                <div style="font-size: 1.4rem; font-weight: 700; color: #b45309;">{stats['corriger']}</div>
-                <div style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; color: #92400e;">Corrigées</div>
+            <div style="font-size: 1.35rem; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
+                Série d'évaluation complétée avec succès
             </div>
-            <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 8px; padding: 12px 18px; min-width: 100px;">
-                <div style="font-size: 1.4rem; font-weight: 700; color: #be123c;">{stats['rejeter']}</div>
-                <div style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; color: #9f1239;">Rejetées</div>
+            <div style="font-size: 0.88rem; color: #475569; margin-bottom: 24px;">
+                Merci Dr. {st.session_state['reviewer_name']}. Vos évaluations ont été enregistrées avec succès.
+            </div>
+            <div style="display: flex; justify-content: center; gap: 14px; margin-bottom: 20px;">
+                <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 14px 22px; min-width: 110px;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #047857;">{stats['valider']}</div>
+                    <div style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; color: #065f46;">Validées</div>
+                </div>
+                <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 14px 22px; min-width: 110px;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #b45309;">{stats['corriger']}</div>
+                    <div style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; color: #92400e;">Corrigées</div>
+                </div>
+                <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 14px 22px; min-width: 110px;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #be123c;">{stats['rejeter']}</div>
+                    <div style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; color: #9f1239;">Rejetées</div>
+                </div>
             </div>
         </div>
-    </div>
-    """)
+        """)
 
-    col_b1, col_b2 = st.columns(2)
-    with col_b1:
-        if st.button("Évaluer une nouvelle série (20 questions) →", type="primary", use_container_width=True):
-            batch = get_or_create_batch(
-                st.session_state["session_id"],
-                st.session_state["reviewer_name"],
-                st.session_state["reviewer_role"],
-                reviewer_email=st.session_state["reviewer_email"],
-                batch_size=20
-            )
-            st.session_state["batch"] = batch
-            st.session_state["current_idx"] = 0
-            st.session_state["completed"] = False
-            st.session_state["decision_choice"] = "valider"
-            st.session_state["batch_stats"] = {"valider": 0, "corriger": 0, "rejeter": 0}
-            st.rerun()
+        col_b1, col_b2 = st.columns(2)
+        with col_b1:
+            if st.button("Évaluer une nouvelle série (20 questions) →", type="primary", use_container_width=True):
+                batch = get_or_create_batch(
+                    st.session_state["session_id"],
+                    st.session_state["reviewer_name"],
+                    st.session_state["reviewer_role"],
+                    reviewer_email=st.session_state["reviewer_email"],
+                    batch_size=20
+                )
+                st.session_state["batch"] = batch
+                st.session_state["current_idx"] = 0
+                st.session_state["completed"] = False
+                st.session_state["decision_choice"] = "valider"
+                st.session_state["batch_stats"] = {"valider": 0, "corriger": 0, "rejeter": 0}
+                st.rerun()
 
-    with col_b2:
-        if st.button("Terminer la session", use_container_width=True):
-            st.session_state["authenticated"] = False
-            st.session_state["batch"] = []
-            st.rerun()
+        with col_b2:
+            if st.button("Terminer la session", use_container_width=True):
+                st.session_state["authenticated"] = False
+                st.session_state["batch"] = []
+                st.rerun()
 
-# -------------------------------------------------------------------------
-# ÉCRAN DE QUESTION À ÉVALUER
-# -------------------------------------------------------------------------
+
+# =============================================================================
+# ÉCRAN 3 : INTERFACE D'ÉVALUATION DE DIALOGUE (QUESTION / RÉPONSE / DÉCISION)
+# =============================================================================
 else:
     batch = st.session_state["batch"]
     idx = st.session_state["current_idx"]
@@ -423,20 +400,20 @@ else:
     }
     role_label = ROLE_LABELS.get(st.session_state["reviewer_role"], "Praticien")
 
-    # 1. Barre supérieure du praticien
+    # 1. Barre supérieure compacte du praticien
     render_html(f"""
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #ecfdf5; border-radius: 6px; color: #059669;">
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 9px;">
+            <span style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; background: #ecfdf5; border-radius: 7px; color: #059669;">
                 {ICONS['stethoscope']}
             </span>
             <div>
-                <span style="font-weight: 700; color: #0f172a; font-size: 0.88rem;">{st.session_state['reviewer_name']}</span>
-                <span style="font-size: 0.74rem; color: #64748b; margin-left: 4px;">({role_label})</span>
+                <span style="font-weight: 700; color: #0f172a; font-size: 0.9rem;">{st.session_state['reviewer_name']}</span>
+                <span style="font-size: 0.75rem; color: #64748b; margin-left: 5px;">({role_label})</span>
             </div>
         </div>
-        <span style="background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; font-size: 0.7rem; font-weight: 600; padding: 2px 7px; border-radius: 5px;">
-            Test Isolé
+        <span style="background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; font-size: 0.72rem; font-weight: 600; padding: 3px 8px; border-radius: 5px;">
+            Santé Maternelle & Infantile
         </span>
     </div>
     """)
@@ -462,7 +439,7 @@ else:
             st.rerun()
 
     st.progress(idx / total_q)
-    render_html(f"<div style='text-align: right; font-size: 0.74rem; color: #64748b; margin-top: -6px; margin-bottom: 12px;'>{pct}% validé</div>")
+    render_html(f"<div style='text-align: right; font-size: 0.74rem; color: #64748b; margin-top: -6px; margin-bottom: 14px;'>{pct}% validé</div>")
 
     topic = current_row.get("topic", "santé générale").capitalize()
     risk = current_row.get("risk_level", "routine").capitalize()
@@ -485,9 +462,9 @@ else:
     </div>
     """)
 
-    # ---------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # SECTION 1 : QUESTION DE LA MAMAN (ORDRE RIGOUREUX : ARABE 1ER, FRANÇAIS 2E)
-    # ---------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     question_ar = current_row.get("question_ar", "")
     question_lat = current_row.get("question_lat", "")
 
@@ -513,7 +490,7 @@ else:
             </div>
         </div>
 
-        <!-- 2. Arabizi en lettres françaises (Deuxième encadré - French in Darja) -->
+        <!-- 2. Arabizi en lettres françaises (Deuxième encadré) -->
         <div style="background: #fcfdfd; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
             <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #059669; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
                 {ICONS['languages']}
@@ -526,9 +503,9 @@ else:
     </div>
     """)
 
-    # ---------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # SECTION 2 : TRANSCRIPTION DE LA RÉPONSE DE L'ASSISTANT
-    # ---------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     answer_darja = current_row.get("answer_darja", "")
 
     render_html(f"""
@@ -548,9 +525,9 @@ else:
     </div>
     """)
 
-    # ---------------------------------------------------------------------
-    # SECTION 3 : DÉCISION MÉDICALE DU PRATICIEN (PATTERN APPROVAL CARD 21ST.DEV)
-    # ---------------------------------------------------------------------
+    # -------------------------------------------------------------------------
+    # SECTION 3 : DÉCISION MÉDICALE DU PRATICIEN
+    # -------------------------------------------------------------------------
     render_html(f"""
     <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 20px 14px 20px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(15,23,42,0.02);">
         <div style="font-size: 0.74rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: #64748b; margin-bottom: 2px;">
@@ -580,7 +557,7 @@ else:
     with b_col2:
         is_c = (current_choice == "corriger")
         c_btn = st.button(
-            "Corriger\n(Modifier le texte)",
+            "Corriger\n(Ajuster le texte)",
             key=f"btn_c_{row_id}",
             type="primary" if is_c else "secondary",
             use_container_width=True
@@ -592,7 +569,7 @@ else:
     with b_col3:
         is_r = (current_choice == "rejeter")
         r_btn = st.button(
-            "Rejeter\n(Dangereux / erroné)",
+            "Rejeter\n(Non conforme / Dangereux)",
             key=f"btn_r_{row_id}",
             type="primary" if is_r else "secondary",
             use_container_width=True
@@ -601,53 +578,47 @@ else:
             st.session_state["decision_choice"] = "rejeter"
             st.rerun()
 
+    # Formulaire conditionnel selon le choix
     corrected_val = ""
     reject_reasons = []
 
     if current_choice == "corriger":
         render_html("""
-        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-top: 12px; margin-bottom: 6px;">
-            <div style="font-size: 0.82rem; font-weight: 700; color: #92400e;">
-                Correction de la réponse en Darja :
-            </div>
-            <div style="font-size: 0.74rem; color: #b45309; margin-top: 1px;">
-                Modifiez directement le texte. Tolérance zéro pour les prescriptions ou posologies de médicaments.
-            </div>
+        <div style="margin-top: 14px; margin-bottom: 6px; font-size: 0.82rem; font-weight: 600; color: #b45309;">
+            Proposition de correction en Darja :
         </div>
         """)
-
         corrected_val = st.text_area(
-            "Réponse Darja corrigée",
+            "Correction Darja",
             value=answer_darja,
-            height=100,
+            height=110,
             key=f"corr_box_{row_id}",
             label_visibility="collapsed"
         )
 
     elif current_choice == "rejeter":
         render_html("""
-        <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 8px; padding: 10px 14px; margin-top: 12px; margin-bottom: 6px;">
-            <div style="font-size: 0.82rem; font-weight: 700; color: #9f1239;">
-                Motif(s) du rejet clinique :
-            </div>
-            <div style="font-size: 0.74rem; color: #be123c; margin-top: 1px;">
-                Sélectionnez au moins un motif de non-conformité :
-            </div>
+        <div style="margin-top: 14px; margin-bottom: 8px; font-size: 0.82rem; font-weight: 600; color: #be123c;">
+            Motif(s) clinique(s) ou linguistique(s) du rejet :
         </div>
         """)
 
-        r1 = st.checkbox("Prescription de médicament / posologie interdite", key=f"r1_{row_id}")
-        r2 = st.checkbox("Erreur médicale clinique ou diagnostic non fondé", key=f"r2_{row_id}")
-        r3 = st.checkbox("Dialecte non-algérien ou incompréhensible", key=f"r3_{row_id}")
-        r4 = st.checkbox("Signe de danger vital non pris en compte", key=f"r4_{row_id}")
-        if r1: reject_reasons.append("prescription_dose")
-        if r2: reject_reasons.append("erreur_medicale")
-        if r3: reject_reasons.append("darja_incorrecte")
-        if r4: reject_reasons.append("urgence_non_signalee")
+        r_c1, r_c2 = st.columns(2)
+        with r_c1:
+            if st.checkbox("Prescription de médicament / posologie", key=f"r_p_{row_id}"):
+                reject_reasons.append("prescription_dose")
+            if st.checkbox("Erreur médicale clinique", key=f"r_e_{row_id}"):
+                reject_reasons.append("erreur_medicale")
+        with r_c2:
+            if st.checkbox("Dialecte non-algérien / incompréhensible", key=f"r_d_{row_id}"):
+                reject_reasons.append("darja_incorrecte")
+            if st.checkbox("Signe de danger vital non orienté", key=f"r_u_{row_id}"):
+                reject_reasons.append("urgence_non_signalee")
 
+    # Champ de remarques facultatives
     render_html("""
-    <div style="margin-top: 12px; margin-bottom: 4px; font-size: 0.8rem; font-weight: 600; color: #334155;">
-        Remarque clinique <span style="color: #94a3b8; font-weight: 400;">(facultatif)</span>
+    <div style="margin-top: 12px; margin-bottom: 4px; font-size: 0.78rem; font-weight: 600; color: #64748b;">
+        Note ou recommandation clinique (facultative) :
     </div>
     """)
 
@@ -664,7 +635,7 @@ else:
     with col_sub_left:
         render_html("""
         <div style="display: flex; align-items: center; font-size: 0.76rem; color: #64748b; height: 100%; padding-top: 8px;">
-            Enregistrement immédiat dans reviews_test.csv
+            Enregistrement sécurisé & attribution clinique
         </div>
         """)
 
