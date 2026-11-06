@@ -75,6 +75,69 @@ AR_TO_FR_WORDS = {
     "تقيؤ": "radan",
     "إسهال": "is-hal",
     "رعشة": "ra3cha",
+    "يلزم": "yelzem",
+    "لازم": "lazem",
+    "يتعالج": "yet3alej",
+    "تعالج": "t3alej",
+    "الحامل": "el 7amel",
+    "حامل": "7amel",
+    "بالايدز": "b l'aids",
+    "الإيدز": "l'aids",
+    "ايدز": "aids",
+    "فورا": "fawran",
+    "فوراً": "fawran",
+    "دروك": "dork",
+    "دوك": "douk",
+    "نهار": "nhar",
+    "أيام": "iyyam",
+    "شهر": "chhar",
+    "أشهر": "chhour",
+    "شهور": "chhour",
+    "عام": "3am",
+    "سنة": "3am",
+    "سنين": "snin",
+    "حرارة": "7arara",
+    "سعال": "so3la",
+    "تنفس": "tnaffous",
+    "صعوبة": "so3ouba",
+    "مريض": "mrid",
+    "مريضة": "mrida",
+    "مرض": "mrad",
+    "عملية": "3amaliya",
+    "قيصرية": "cesarienne",
+    "طبيعية": "naturelle",
+    "ولادة": "wlada",
+    "وجع": "wja3",
+    "سطر": "star",
+    "راني": "rani",
+    "راهو": "rahou",
+    "راهي": "rahi",
+    "راهم": "rahoum",
+    "خايفة": "khayfa",
+    "مقلقة": "m9el9a",
+    "حايرة": "7ayra",
+    "عاونوني": "3awnouni",
+    "قولولي": "9oulouli",
+    "انصحوني": "nes7ouni",
+    "واش": "wach",
+    "كيفاه": "kifah",
+    "كفاش": "kifech",
+    "كيفاش": "kifech",
+    "علاش": "3lah",
+    "وعلاش": "wa3lah",
+    "وقتاش": "wa9tach",
+    "وقتاه": "wa9tah",
+    "شحال": "ch-hal",
+    "حبة": "7abba",
+    "سيرو": "sirop",
+    "بومادا": "pommade",
+    "إبرة": "ibra",
+    "تيزانة": "tisane",
+    "حلبة": "7elba",
+    "كمون": "kemmoun",
+    "زيت": "zit",
+    "زيتون": "zitoun",
+    "عسل": "3sel",
 }
 
 CHAR_MAP = {
@@ -84,13 +147,19 @@ CHAR_MAP = {
     'ص': 's', 'ض': 'd', 'ط': 't', 'ظ': 'dh', 'ع': '3', 'غ': 'gh',
     'ف': 'f', 'ق': 'q', 'ك': 'k', 'ل': 'l', 'م': 'm', 'ن': 'n',
     'ه': 'h', 'و': 'ou', 'ي': 'i', 'ئ': 'y', 'ؤ': 'ou', 'ة': 'a',
-    '؟': '?', '،': ',', '؛': ';'
+    'پ': 'p', 'چ': 'tch', 'ڤ': 'v', 'گ': 'g', 'ی': 'i', 'ك': 'k',
+    '؟': '?', '،': ',', '؛': ';', 'ـ': ''
 }
+
+# Arabic diacritics (tashkeel) to strip
+TASHKEEL_RE = re.compile(r'[\u064B-\u0652\u0670\u0640]')
 
 def arabic_to_darja_latin(text: str) -> str:
     """Convert an Arabic script Darja question into clean French-letters Darja."""
     if not text:
         return ""
+    # Strip diacritics
+    text = TASHKEEL_RE.sub('', text)
     words = text.split()
     converted_words = []
     for w in words:
@@ -99,13 +168,19 @@ def arabic_to_darja_latin(text: str) -> str:
         if clean_w in AR_TO_FR_WORDS:
             lat = AR_TO_FR_WORDS[clean_w]
             if punct:
-                lat += '?' if '؟' in punct else punct
+                lat += '?' if '؟' in punct else (',' if '،' in punct else punct)
             converted_words.append(lat)
         else:
             # Character-by-character mapping
             chars = []
             for c in w:
-                chars.append(CHAR_MAP.get(c, c))
+                if c in CHAR_MAP:
+                    chars.append(CHAR_MAP[c])
+                elif '\u0600' <= c <= '\u06FF':
+                    # Drop unknown arabic diacritic / symbol
+                    continue
+                else:
+                    chars.append(c)
             res = "".join(chars)
             # Polish phonetic transitions
             res = re.sub(r'ou([aeiou])', r'w\1', res)
@@ -113,6 +188,9 @@ def arabic_to_darja_latin(text: str) -> str:
             converted_words.append(res)
     
     result = " ".join(converted_words)
+    # Ensure zero Arabic characters remain
+    result = re.sub(r'[\u0600-\u06FF]', '', result)
+    result = re.sub(r'\s+', ' ', result).strip()
     # Capitalize first letter
     if result:
         result = result[0].upper() + result[1:]

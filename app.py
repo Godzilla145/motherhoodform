@@ -467,24 +467,24 @@ render_html(f"""
         <span style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Darja algérienne</span>
     </div>
 
-    <!-- Arabizi en lettres françaises -->
+    <!-- 1. Écriture arabe en Cairo (Premier encadré) -->
     <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;">
+        <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #047857; margin-bottom: 4px; text-align: right;">
+            بالحروف العربية :
+        </div>
+        <div style="font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; font-size: 1.25rem; font-weight: 700; color: #0f172a; line-height: 1.65;">
+            {question_ar}
+        </div>
+    </div>
+
+    <!-- 2. Arabizi en lettres françaises (Deuxième encadré - French in Darja) -->
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
         <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #047857; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
             {ICONS['languages']}
             En lettres françaises (Arabizi) :
         </div>
         <div style="font-family: 'Inter', -apple-system, sans-serif; font-size: 1.1rem; color: #0f172a; line-height: 1.55; font-weight: 600;">
             {question_lat or "—"}
-        </div>
-    </div>
-
-    <!-- Écriture arabe en Cairo -->
-    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
-        <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #047857; margin-bottom: 4px; text-align: right;">
-            بالحروف العربية :
-        </div>
-        <div style="font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; font-size: 1.25rem; font-weight: 700; color: #0f172a; line-height: 1.65;">
-            {question_ar}
         </div>
     </div>
 </div>
