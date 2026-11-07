@@ -3,6 +3,7 @@ Design Médical Professionnel (Tokens 21st.dev — Thème Emerald Slate & Approv
 Zéro gradient IA superflu, typographie médicale hospitalière épurée, ergonomie fluide.
 """
 import os
+import re
 import sys
 import uuid
 from pathlib import Path
@@ -293,11 +294,19 @@ if not st.session_state["authenticated"]:
         """)
 
         if st.button("Démarrer la série d'évaluation clinique (20 questions) →", type="primary", use_container_width=True):
-            if not name_input.strip():
+            cleaned_name = name_input.strip()
+            cleaned_email = email_input.strip()
+            email_pattern = r"^[\w\.\+\-]+@[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*\.[a-zA-Z]{2,}$"
+
+            if not cleaned_name:
                 st.error("Veuillez saisir votre nom ou identifiant professionnel.")
+            elif not cleaned_email:
+                st.error("Veuillez saisir votre adresse email professionnelle.")
+            elif not re.match(email_pattern, cleaned_email):
+                st.error("Format d'email invalide. Veuillez saisir une adresse email correcte (ex: dr.benali@chu-alger.dz ou nom@domaine.com).")
             else:
-                st.session_state["reviewer_name"] = name_input.strip()
-                st.session_state["reviewer_email"] = email_input.strip()
+                st.session_state["reviewer_name"] = cleaned_name
+                st.session_state["reviewer_email"] = cleaned_email
                 st.session_state["reviewer_role"] = selected_role
                 batch = get_or_create_batch(
                     st.session_state["session_id"],
