@@ -30,11 +30,15 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Route to private supervisor dashboard ONLY if ?admin=true or ?supervisor=true
-if st.query_params.get("admin") in ("true", "1", "yes") or st.query_params.get("supervisor") in ("true", "1", "yes"):
+# Route to private supervisor dashboard (via ?admin=true or secret PIN)
+if st.query_params.get("admin") in ("true", "1", "yes") or st.query_params.get("supervisor") in ("true", "1", "yes") or st.session_state.get("show_dashboard", False):
     import runpy
     dash_path = Path(__file__).parent / "dashboard.py"
     if dash_path.exists():
+        if st.button("← Quitter Mode Superviseur", type="secondary"):
+            st.session_state["show_dashboard"] = False
+            st.query_params.clear()
+            st.rerun()
         runpy.run_path(str(dash_path))
         st.stop()
 
@@ -332,6 +336,16 @@ if not st.session_state["authenticated"]:
                     st.session_state["completed"] = False
                     st.session_state["decision_choice"] = "valider"
                     st.rerun()
+
+    # Accès Superviseur Sécurisé par Code PIN
+    render_html("<div style='margin-top: 15px;'></div>")
+    with st.expander("🔒 Espace Superviseur & Résultats", expanded=False):
+        admin_pin = st.text_input("Code secret superviseur :", type="password", key="input_admin_pin")
+        if admin_pin == "admin2026":
+            st.session_state["show_dashboard"] = True
+            st.rerun()
+        elif admin_pin:
+            st.error("Code incorrect.")
 
 
 # =============================================================================
