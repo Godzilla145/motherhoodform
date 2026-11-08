@@ -30,6 +30,13 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Route to supervisor dashboard if requested
+if st.query_params.get("view") == "dashboard" or st.query_params.get("page") == "dashboard":
+    try:
+        st.switch_page("pages/1_📊_Dashboard.py")
+    except Exception:
+        pass
+
 # -----------------------------------------------------------------------------
 # Bibliothèque d'Icônes Vectorielles Médicales (SVG Purs — ZÉRO Emoji)
 # -----------------------------------------------------------------------------
@@ -224,6 +231,13 @@ if "batch_stats" not in st.session_state:
 # ÉCRAN 1 : ONBOARDING / IDENTIFICATION UNIQUE & ÉLÉGANTE (CARTE UNIFIÉE)
 # =============================================================================
 if not st.session_state["authenticated"]:
+    col_h1, col_h2 = st.columns([3, 1])
+    with col_h2:
+        if st.button("📊 Console Superviseur", type="secondary", use_container_width=True, key="btn_supervisor_top"):
+            try:
+                st.switch_page("pages/1_📊_Dashboard.py")
+            except Exception:
+                pass
     with st.container(border=True):
         render_html(f"""
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
