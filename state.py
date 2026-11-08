@@ -348,6 +348,7 @@ def get_dashboard_metrics():
         "total_reviews": total_reviews,
         "decisions": decisions,
         "reviewer_list": reviewer_list,
+        "reviewers": reviewer_list,
         "reject_reasons": reject_reasons,
         "recent_reviews": list(reversed(reviews[-50:])) if reviews else [],
         "reviews_file_path": str(REVIEWS_CSV)

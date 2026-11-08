@@ -117,11 +117,12 @@ render_html(f"""
 # Récupération des Métriques
 # -----------------------------------------------------------------------------
 metrics = get_dashboard_metrics()
-total_rev = metrics["total_reviews"]
-dec = metrics["decisions"]
+total_rev = metrics.get("total_reviews", 0)
+dec = metrics.get("decisions", {"valider": 0, "corriger": 0, "rejeter": 0})
 val_pct = int((dec["valider"] / total_rev * 100)) if total_rev > 0 else 0
 cor_pct = int(((dec["corriger"] + dec["rejeter"]) / total_rev * 100)) if total_rev > 0 else 0
-active_doctors = len(metrics["reviewers"])
+reviewers_data = metrics.get("reviewer_list") or metrics.get("reviewers") or []
+active_doctors = len(reviewers_data)
 
 # 4 Cartes KPI
 kpi1, kpi2, kpi3, kpi4 = st.columns(4)
@@ -172,7 +173,7 @@ render_html(f"""
     </div>
 """)
 
-if not metrics["reviewers"]:
+if not reviewers_data:
     render_html("""
     <div style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 24px 0;">
         Aucune évaluation enregistrée pour le moment.
@@ -196,7 +197,7 @@ else:
         </thead>
         <tbody>
     """
-    for r in metrics["reviewers"]:
+    for r in reviewers_data:
         r_name = r["name"] or "Dr. Anonyme"
         r_email = r["email"] if r["email"] else "—"
         r_role = r["role"].capitalize() if r["role"] else "Non renseigné"
