@@ -30,6 +30,21 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# -----------------------------------------------------------------------------
+# Routeur Superviseur Direct (Zéro redirection, exécution immédiate)
+# -----------------------------------------------------------------------------
+if st.query_params.get("view") == "dashboard" or st.session_state.get("show_dashboard", False):
+    import runpy
+    dash_path = Path(__file__).parent / "dashboard.py"
+    if dash_path.exists():
+        if st.button("← Retour au formulaire d'évaluation", type="secondary"):
+            st.session_state["show_dashboard"] = False
+            st.query_params.clear()
+            st.rerun()
+        runpy.run_path(str(dash_path))
+        st.stop()
+
+
 # Route to supervisor dashboard if requested
 if st.query_params.get("view") == "dashboard" or st.query_params.get("page") == "dashboard":
     try:
@@ -234,6 +249,8 @@ if not st.session_state["authenticated"]:
     col_h1, col_h2 = st.columns([3, 1])
     with col_h2:
         if st.button("📊 Console Superviseur", type="secondary", use_container_width=True, key="btn_supervisor_top"):
+            st.session_state["show_dashboard"] = True
+            st.rerun()
             try:
                 st.switch_page("pages/1_📊_Dashboard.py")
             except Exception:
