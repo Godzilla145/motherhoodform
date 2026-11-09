@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import uuid
+import hashlib
 from pathlib import Path
 import streamlit as st
 
@@ -30,8 +31,18 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Route to private supervisor dashboard (via ?admin=true or secret PIN)
-if st.query_params.get("admin") in ("true", "1", "yes") or st.query_params.get("supervisor") in ("true", "1", "yes") or st.session_state.get("show_dashboard", False):
+# Route to private supervisor dashboard (Cryptographic Hash Verified)
+SUPERVISOR_HASH = "776d779e1da601c8011a53c4a0ad8cc9853a0f3fd3e29cc536b89e65e6e881c5"
+SUPERVISOR_TOKEN = "NLParto#7f9c4e8b2a1d0f5c8b3e6d2a1c4f9e7b"
+
+admin_param = (st.query_params.get("admin") or st.query_params.get("supervisor") or "").strip()
+is_admin_auth = False
+if admin_param:
+    param_hash = hashlib.sha256(admin_param.encode("utf-8")).hexdigest()
+    if param_hash == SUPERVISOR_HASH or admin_param in (SUPERVISOR_HASH, SUPERVISOR_TOKEN):
+        is_admin_auth = True
+
+if is_admin_auth or st.session_state.get("show_dashboard", False):
     import runpy
     dash_path = Path(__file__).parent / "dashboard.py"
     if dash_path.exists():
@@ -340,12 +351,14 @@ if not st.session_state["authenticated"]:
     # Accès Superviseur Sécurisé par Code PIN
     render_html("<div style='margin-top: 15px;'></div>")
     with st.expander("🔒 Espace Superviseur & Résultats", expanded=False):
-        admin_pin = st.text_input("Code secret superviseur :", type="password", key="input_admin_pin")
-        if admin_pin == "admin2026":
-            st.session_state["show_dashboard"] = True
-            st.rerun()
-        elif admin_pin:
-            st.error("Code incorrect.")
+        admin_pin = st.text_input("Code secret superviseur (Token / Hash) :", type="password", key="input_admin_pin")
+        if admin_pin:
+            entered_hash = hashlib.sha256(admin_pin.strip().encode("utf-8")).hexdigest()
+            if entered_hash == SUPERVISOR_HASH or admin_pin.strip() in (SUPERVISOR_HASH, SUPERVISOR_TOKEN):
+                st.session_state["show_dashboard"] = True
+                st.rerun()
+            else:
+                st.error("Code secret / Hash invalide.")
 
 
 # =============================================================================
