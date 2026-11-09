@@ -356,3 +356,13 @@ def get_dashboard_metrics():
 
 
 get_statistics = get_dashboard_metrics
+
+
+FACTS_CACHE = None
+
+def get_fact_by_id(fact_id: str) -> dict:
+    """Retrieve clinical fact details by ID."""
+    global FACTS_CACHE
+    if FACTS_CACHE is None:
+        FACTS_CACHE = _read_facts()
+    return FACTS_CACHE.get(fact_id, {})

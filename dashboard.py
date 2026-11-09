@@ -131,7 +131,7 @@ with kpi1:
     <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; border-top: 3px solid #059669;">
         <div style="font-size: 0.72rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Total Évaluées</div>
         <div style="font-size: 1.6rem; font-weight: 700; color: #0f172a; margin-top: 4px;">{total_rev:,}</div>
-        <div style="font-size: 0.72rem; color: #059669; font-weight: 500; margin-top: 2px;">pool: {metrics['pool_total']}</div>
+        <div style="font-size: 0.72rem; color: #059669; font-weight: 500; margin-top: 2px;">pool: {metrics.get("pool_total", 0)}</div>
     </div>
     """)
 with kpi2:
@@ -247,7 +247,7 @@ REASON_MAP = {
     "medical-danger": "Danger médical / orientation urgente omise"
 }
 
-if not metrics["reject_reasons"]:
+if not metrics.get("reject_reasons"):
     render_html("""
     <div style="text-align: center; color: #94a3b8; font-size: 0.82rem; padding: 12px 0;">
         Aucun rejet avec motif enregistré pour le moment.
@@ -255,7 +255,7 @@ if not metrics["reject_reasons"]:
     </div>
     """)
 else:
-    for r_code, r_count in metrics["reject_reasons"].items():
+    for r_code, r_count in metrics.get("reject_reasons", {}).items():
         r_name = REASON_MAP.get(r_code, r_code)
         pct_bar = int((r_count / max(1, dec["rejeter"])) * 100)
         render_html(f"""
@@ -285,7 +285,7 @@ render_html(f"""
     </div>
 """)
 
-if not metrics["recent_reviews"]:
+if not metrics.get("recent_reviews"):
     render_html("""
     <div style="text-align: center; color: #94a3b8; font-size: 0.82rem; padding: 16px 0;">
         Aucune donnée récente.
@@ -306,7 +306,7 @@ else:
         </thead>
         <tbody>
     """
-    for item in metrics["recent_reviews"][:30]:
+    for item in metrics.get("recent_reviews", [])[:30]:
         dec_val = item.get("decision", "").lower()
         if dec_val == "valider":
             dec_badge = '<span style="background: #ecfdf5; color: #047857; font-weight: 700; padding: 2px 7px; border-radius: 4px; font-size: 0.72rem;">VALIDÉ</span>'
