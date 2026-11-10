@@ -17,12 +17,15 @@ from state import (
     TEST_MODE
 )
 
-st.set_page_config(
-    page_title="NLParto — Dashboard Superviseur",
-    page_icon="📊",
-    layout="centered",
-    initial_sidebar_state="collapsed"
-)
+try:
+    st.set_page_config(
+        page_title="NLParto — Dashboard Superviseur",
+        page_icon="📊",
+        layout="centered",
+        initial_sidebar_state="collapsed"
+    )
+except Exception:
+    pass
 
 # -----------------------------------------------------------------------------
 # Icônes Vectorielles Médicales & Dashboard (SVG Purs)
@@ -88,8 +91,17 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# En-tête Superviseur
+# Bouton Retour Formulaire & En-tête Superviseur
 # -----------------------------------------------------------------------------
+col_back, col_mode = st.columns([1, 3])
+with col_back:
+    if st.button("← Retour Formulaire", type="secondary"):
+        st.session_state["is_supervisor"] = False
+        st.query_params.clear()
+        st.rerun()
+with col_mode:
+    st.caption("Mode Superviseur Connecté • Traçabilité Médicale")
+
 render_html(f"""
 <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(15,23,42,0.03); margin-bottom: 20px;">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
