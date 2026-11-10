@@ -1,5 +1,5 @@
-"""NLParto — Plateforme Médicale Moderne de Validation Clinique & Linguistique
-Interface Hospitalière Haute Précision (SaaS Médical Épuré, Ergonomie Clinique & Accessibilité).
+"""NLParto — Plateforme Médicale de Validation Clinique & Linguistique
+Interface Hospitalière Haute Précision pour Praticiens et Médecins Évaluateurs.
 """
 import os
 import re
@@ -33,94 +33,25 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# Sécurité & Accès Superviseur (Multi-Canal & Résilient)
+# Routage URL Silencieux vers le Dashboard (/studentssupervisors)
 # -----------------------------------------------------------------------------
-SUPERVISOR_HASH = "776d779e1da601c8011a53c4a0ad8cc9853a0f3fd3e29cc536b89e65e6e881c5"
-SUPERVISOR_TOKEN = "NLParto#7f9c4e8b2a1d0f5c8b3e6d2a1c4f9e7b"
-
-# Détection de la session superviseur
-if "is_supervisor" not in st.session_state:
-    st.session_state["is_supervisor"] = False
-
-# Vérification via paramètres URL (?admin=..., ?dashboard=..., ?key=...)
 query_params = st.query_params
-admin_token = query_params.get("admin") or query_params.get("key") or query_params.get("dashboard") or ""
-if admin_token:
-    token_str = str(admin_token).strip()
-    token_hash = hashlib.sha256(token_str.encode("utf-8")).hexdigest()
-    if (token_hash == SUPERVISOR_HASH 
-        or token_str == SUPERVISOR_HASH 
-        or token_str in ["NLParto", "supervisor", "admin", SUPERVISOR_TOKEN]):
-        st.session_state["is_supervisor"] = True
+is_sup_route = (
+    "studentssupervisors" in query_params
+    or query_params.get("page") == "studentssupervisors"
+    or query_params.get("admin") in ["studentssupervisors", "NLParto", "supervisor"]
+)
 
-if st.session_state["is_supervisor"]:
+if is_sup_route:
     dash_path = Path(__file__).parent / "dashboard.py"
     if dash_path.exists():
         import runpy
         runpy.run_path(str(dash_path))
         st.stop()
 
-LOGO_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 76" width="280" height="66" fill="none" style="display: block;">
-  <defs>
-    <linearGradient id="emblem-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0d9488" />
-      <stop offset="60%" stop-color="#0f766e" />
-      <stop offset="100%" stop-color="#115e59" />
-    </linearGradient>
-    <linearGradient id="text-teal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f766e" />
-      <stop offset="100%" stop-color="#059669" />
-    </linearGradient>
-    <linearGradient id="spark-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#34d399" />
-      <stop offset="100%" stop-color="#38bdf8" />
-    </linearGradient>
-    <filter id="emblem-glow" x="-10%" y="-10%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0f766e" flood-opacity="0.25" />
-    </filter>
-  </defs>
-  <g transform="translate(4, 4)" filter="url(#emblem-glow)">
-    <rect x="0" y="0" width="66" height="66" rx="18" fill="url(#emblem-grad)" />
-    <rect x="1" y="1" width="64" height="64" rx="17" fill="none" stroke="#5eead4" stroke-opacity="0.35" stroke-width="1.2" />
-    <path d="M 10 46 L 20 46 L 25 38 L 31 52 L 36 42 L 40 46 L 56 46" stroke="#5eead4" stroke-opacity="0.5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
-    <circle cx="28" cy="22" r="5" fill="#ffffff" />
-    <path d="M 21 35 C 20 27, 36 27, 35 35 C 35 40, 31 42, 25 42 C 21 42, 19 39, 21 35 Z" fill="#ffffff" fill-opacity="0.95" />
-    <circle cx="37" cy="28" r="3.5" fill="#a7f3d0" />
-    <path d="M 34 33 C 40 32, 42 37, 39 41 C 36 44, 32 42, 31 38 Z" fill="#a7f3d0" fill-opacity="0.9" />
-    <circle cx="15" cy="18" r="1.6" fill="#5eead4" fill-opacity="0.8" />
-    <circle cx="13" cy="25" r="1.2" fill="#5eead4" fill-opacity="0.6" />
-    <path d="M 15 18 L 13 25" stroke="#5eead4" stroke-opacity="0.4" stroke-width="1" />
-  </g>
-  <g transform="translate(82, 10)">
-    <text x="0" y="32" font-family="'Plus Jakarta Sans', 'Inter', sans-serif" font-size="28" font-weight="800" fill="#0f172a" letter-spacing="-0.03em">NLP</text>
-    <text x="61" y="32" font-family="'Plus Jakarta Sans', 'Inter', sans-serif" font-size="28" font-weight="700" fill="url(#text-teal-grad)" letter-spacing="-0.02em">arto</text>
-    <path d="M 125 15 Q 125 20, 130 20 Q 125 20, 125 25 Q 125 20, 120 20 Q 125 20, 125 15 Z" fill="url(#spark-grad)" />
-    <rect x="0" y="40" width="186" height="18" rx="5" fill="#f0fdfa" stroke="#ccfbf1" stroke-width="1" />
-    <text x="7" y="52.5" font-family="'Plus Jakarta Sans', 'Inter', sans-serif" font-size="8.5" font-weight="700" fill="#0f766e" letter-spacing="0.06em">SANTÉ MATERNELLE &amp; IA CLINIQUÉ</text>
-  </g>
-</svg>"""
-
-LOGO_ICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 66 66" width="38" height="38" fill="none" style="display: block;">
-  <defs>
-    <linearGradient id="icon-emblem-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0d9488" />
-      <stop offset="60%" stop-color="#0f766e" />
-      <stop offset="100%" stop-color="#115e59" />
-    </linearGradient>
-  </defs>
-  <rect x="0" y="0" width="66" height="66" rx="18" fill="url(#icon-emblem-grad)" />
-  <rect x="1" y="1" width="64" height="64" rx="17" fill="none" stroke="#5eead4" stroke-opacity="0.35" stroke-width="1.2" />
-  <path d="M 10 46 L 20 46 L 25 38 L 31 52 L 36 42 L 40 46 L 56 46" stroke="#5eead4" stroke-opacity="0.5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
-  <circle cx="28" cy="22" r="5" fill="#ffffff" />
-  <path d="M 21 35 C 20 27, 36 27, 35 35 C 35 40, 31 42, 25 42 C 21 42, 19 39, 21 35 Z" fill="#ffffff" fill-opacity="0.95" />
-  <circle cx="37" cy="28" r="3.5" fill="#a7f3d0" />
-  <path d="M 34 33 C 40 32, 42 37, 39 41 C 36 44, 32 42, 31 38 Z" fill="#a7f3d0" fill-opacity="0.9" />
-</svg>"""
-
-
 
 def render_html(content: str):
-    """Rendu HTML propre et robuste, sans artefacts markdown."""
+    """Rendu HTML propre et robuste."""
     clean_html = textwrap.dedent(content).strip()
     if hasattr(st, "html"):
         st.html(clean_html)
@@ -130,6 +61,7 @@ def render_html(content: str):
 
 # -----------------------------------------------------------------------------
 # Styles CSS Hospitaliers Haut de Gamme
+# Masquage complet de la barre latérale pour ne jamais montrer de menu aux médecins
 # -----------------------------------------------------------------------------
 render_html("""
 <style>
@@ -151,8 +83,8 @@ render_html("""
         --red-danger: #dc2626;
     }
 
-    /* Reset global */
-    #MainMenu, header, footer {
+    /* Masquer le menu hamburger, header, footer et TOUTE barre latérale */
+    #MainMenu, header, footer, [data-testid="stSidebar"], [data-testid="collapsedControl"] {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
@@ -167,7 +99,7 @@ render_html("""
 
     .block-container {
         max-width: 820px !important;
-        padding-top: 1.8rem !important;
+        padding-top: 1.5rem !important;
         padding-bottom: 3.5rem !important;
     }
 
@@ -304,7 +236,6 @@ render_html("""
 </style>
 """)
 
-
 # -----------------------------------------------------------------------------
 # Initialisation de la Session Clinique
 # -----------------------------------------------------------------------------
@@ -335,29 +266,35 @@ if "decision_choice" not in st.session_state:
 # =============================================================================
 if not st.session_state["authenticated"]:
 
-    # 1. Carte principale d'accueil (Design Card Médical Moderne avec Logo Officiel)
-    render_html(f"""
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 26px 28px; box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05); margin-bottom: 22px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
-            <div>
-                {LOGO_SVG}
-            </div>
-            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+    # 1. En-tête avec Logo Officiel Haute Résolution
+    logo_file = Path(__file__).parent / "assets" / "logo.png"
+
+    with st.container(border=True):
+        col_logo, col_badge = st.columns([5, 3])
+        with col_logo:
+            if logo_file.exists():
+                st.image(str(logo_file), width=270)
+            else:
+                st.markdown("## 🩺 **NLParto**")
+        with col_badge:
+            render_html("""
+            <div style="text-align: right; padding-top: 6px;">
                 <span style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px; letter-spacing: 0.03em;">
                     <span style="width: 6px; height: 6px; border-radius: 50%; background: #059669; display: inline-block;"></span>
                     ÉTUDE CLINIQUE NATIONALE
                 </span>
-                <span style="font-size: 0.72rem; color: #64748b; font-weight: 600;">
+                <div style="font-size: 0.72rem; color: #64748b; font-weight: 600; margin-top: 4px;">
                     Protocole Éthique Hospitalier
-                </span>
+                </div>
             </div>
-        </div>
+            """)
 
-        <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 14px 18px; margin-bottom: 22px;">
-            <div style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 4px;">
+        render_html("""
+        <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 14px 18px; margin: 16px 0 20px 0;">
+            <div style="font-size: 1.02rem; font-weight: 800; color: #0f172a; margin-bottom: 4px;">
                 Validation Clinique des Dialogues Médicaux en Darja Algérienne
             </div>
-            <div style="font-size: 0.85rem; color: #475569; line-height: 1.5;">
+            <div style="font-size: 0.84rem; color: #475569; line-height: 1.5;">
                 Évaluation par les praticiens hospitaliers de la sécurité médicale, de l'absence de posologie médicamenteuse indue, et de l'authenticité linguistique de l'assistant IA.
             </div>
         </div>
@@ -366,7 +303,7 @@ if not st.session_state["authenticated"]:
             <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 12px;">
                 Votre mission en 3 étapes simples :
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
                 
                 <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 16px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
@@ -415,10 +352,9 @@ if not st.session_state["authenticated"]:
 
             </div>
         </div>
-    </div>
-    """)
+        """)
 
-    # 2. Section Formulaire Praticien (Container Natif avec Bordure Élégante)
+    # 2. Section Formulaire Praticien
     with st.container(border=True):
         render_html("""
         <div style="margin-bottom: 16px;">
@@ -463,7 +399,7 @@ if not st.session_state["authenticated"]:
             format_func=lambda k: ROLE_OPTIONS[k]
         )
 
-    # 3. Guide Déontologique & Consignes Cliniques (Sleek Medical Rules Banner - Self-Contained HTML)
+    # 3. Guide Déontologique & Consignes Cliniques
     render_html("""
     <div style="background: #ffffff; border: 1.5px solid #fed7aa; border-left: 5px solid #f97316; border-radius: 14px; padding: 20px 24px; box-shadow: 0 4px 16px -2px rgba(249, 115, 22, 0.08); margin-bottom: 24px;">
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
@@ -639,8 +575,12 @@ else:
     render_html(f"""
     <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 20px; margin-bottom: 18px; box-shadow: 0 2px 8px -1px rgba(15, 23, 42, 0.04); display: flex; align-items: center; justify-content: space-between;">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <div>
-                {LOGO_ICON_SVG}
+            <div style="width: 38px; height: 38px; border-radius: 10px; background: #f0fdfa; border: 1px solid #99f6e4; display: flex; align-items: center; justify-content: center; color: #0f766e;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/>
+                    <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/>
+                    <circle cx="20" cy="10" r="2"/>
+                </svg>
             </div>
             <div>
                 <div style="font-weight: 800; color: #0f172a; font-size: 0.96rem;">Dr. {st.session_state['reviewer_name']}</div>
@@ -920,30 +860,3 @@ else:
         🔒 Enregistrement direct — Chaque décision est immédiatement et définitivement enregistrée sur le serveur.
     </div>
     """)
-
-# -----------------------------------------------------------------------------
-# Espace Superviseur Restreint (Discret & Sécurisé)
-# -----------------------------------------------------------------------------
-render_html("<div style='margin-top: 48px; border-top: 1px dashed #cbd5e1; padding-top: 14px;'></div>")
-with st.expander("🔒 Espace Supervision Recherche (Accès restreint)", expanded=False):
-    st.caption("Espace réservé à l'équipe de recherche et de supervision NLParto.")
-    col_sup1, col_sup2 = st.columns([3, 1])
-    with col_sup1:
-        sup_code = st.text_input(
-            "Code d'accès ou hash :",
-            type="password",
-            key="sup_code_input",
-            placeholder="Saisissez le code superviseur...",
-            label_visibility="collapsed"
-        )
-    with col_sup2:
-        if st.button("Accéder →", key="btn_login_sup", type="primary", use_container_width=True):
-            s_val = sup_code.strip()
-            s_hash = hashlib.sha256(s_val.encode("utf-8")).hexdigest()
-            if (s_hash == SUPERVISOR_HASH 
-                or s_val == SUPERVISOR_HASH 
-                or s_val in ["NLParto", "supervisor", "admin", SUPERVISOR_TOKEN]):
-                st.session_state["is_supervisor"] = True
-                st.rerun()
-            else:
-                st.error("Code de supervision non reconnu.")
