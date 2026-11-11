@@ -1,0 +1,21 @@
+row_id,session_id,reviewer_name,reviewer_email,reviewer_role,decision,corrected_text,reject_reasons,notes,timestamp
+GOLD-2K-1152,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:20:12
+GOLD-2K-0514,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:20:16
+GOLD-2K-0798,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:20:32
+GOLD-2K-1279,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:20:43
+GOLD-2K-0117,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:21:00
+GOLD-2K-0349,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:21:11
+GOLD-2K-0785,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:22:15
+GOLD-2K-0531,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:22:24
+GOLD-2K-0721,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:22:37
+GOLD-2K-0986,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:22:42
+GOLD-2K-0676,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:22:52
+GOLD-2K-1703,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:23:04
+GOLD-2K-1005,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:23:15
+GOLD-2K-1499,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:23:25
+GOLD-2K-1266,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:23:35
+GOLD-2K-0611,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:24:07
+GOLD-2K-0148,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:24:35
+GOLD-2K-1186,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:24:52
+GOLD-2K-1993,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:25:00
+GOLD-2K-1939,1a26900a-90da-49e0-a0a1-ae0f93568e04,sf.halis hanine,haninehalis@gmail.con,sage_femme,valider,,,,2026-11-11T08:25:10
