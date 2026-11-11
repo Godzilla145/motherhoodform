@@ -91,14 +91,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# Bouton Retour Formulaire & En-tête Superviseur
+# En-tête Superviseur
 # -----------------------------------------------------------------------------
-col_back, col_mode = st.columns([1, 3])
-with col_back:
-    if st.button("← Retour Formulaire", type="secondary"):
-        st.session_state["is_supervisor"] = False
-        st.query_params.clear()
-        st.rerun()
+col_logo, col_mode = st.columns([1, 3])
+with col_logo:
+    st.markdown("**NLParto** 📊")
 with col_mode:
     st.caption("Mode Superviseur Connecté • Traçabilité Médicale")
 
