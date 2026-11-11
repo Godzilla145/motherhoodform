@@ -37,3 +37,4 @@ if dash_path.exists():
     runpy.run_path(str(dash_path))
 else:
     st.error("Le fichier dashboard.py est introuvable à la racine de l'application.")
+
